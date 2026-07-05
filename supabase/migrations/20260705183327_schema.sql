@@ -1,5 +1,3 @@
-create extension if not exists "pgcrypto";
-
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   display_name text not null,
@@ -24,7 +22,7 @@ create table public.invites (
   id uuid primary key default gen_random_uuid(),
   group_id uuid not null references public.groups(id) on delete cascade,
   invited_by uuid not null references public.profiles(id),
-  token text not null unique default encode(gen_random_bytes(24), 'hex'),
+  token text not null unique default gen_random_uuid()::text || gen_random_uuid()::text,
   email text not null,
   used boolean not null default false,
   created_at timestamptz not null default now()
