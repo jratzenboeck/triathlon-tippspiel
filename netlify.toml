@@ -5,10 +5,9 @@
 [functions]
   directory = "netlify/functions"
 
-[[redirects]]
-  from = "/.netlify/functions/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
+[dev]
+  command = "npm run dev"
+  publish = "dist"
 
 [[redirects]]
   from = "/*"

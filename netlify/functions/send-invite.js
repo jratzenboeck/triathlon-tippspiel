@@ -3,7 +3,7 @@ import { Resend } from 'resend'
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_SECRET_KEY
 )
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -37,7 +37,7 @@ export async function handler(event) {
     const baseUrl = process.env.URL || 'http://localhost:8888'
 
     await resend.emails.send({
-      from: 'Triathlon Tippspiel <noreply@your-domain.com>',
+      from: 'Triathlon Tippspiel <onboarding@resend.dev>',
       to: email,
       subject: 'You\'ve been invited to join a group on Triathlon Tippspiel',
       html: `

@@ -4,7 +4,7 @@ import { schedule } from '@netlify/functions'
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_SECRET_KEY
 )
 
 async function crawlDivision(division) {
@@ -40,8 +40,9 @@ async function crawlDivision(division) {
     })
   })
 
-  for (const athlete of athletes) {
-    await supabase.from('athletes').upsert(athlete, { onConflict: 'slug' })
+  for (let i = 0; i < athletes.length; i += 100) {
+    const batch = athletes.slice(i, i + 100)
+    await supabase.from('athletes').upsert(batch, { onConflict: 'slug' })
   }
 
   return athletes.length
