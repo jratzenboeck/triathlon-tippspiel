@@ -84,6 +84,35 @@
           </tbody>
         </table>
       </section>
+
+      <section v-if="hasBets" class="mt-8">
+        <h2 class="text-lg font-semibold mb-3">Your bets</h2>
+        <div class="flex gap-2 mb-4">
+          <button v-for="div in betDivisions" :key="div" @click="betDivision = div"
+            :class="['px-4 py-2 rounded text-sm font-medium', betDivision === div ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700']">
+            {{ div === 'FPRO' ? 'Women' : 'Men' }}
+          </button>
+        </div>
+        <table class="w-full bg-white rounded-lg shadow-sm border text-sm">
+          <thead>
+            <tr class="border-b text-left text-gray-500">
+              <th class="p-3">Pred</th>
+              <th class="p-3">Athlete</th>
+              <th class="p-3">Result</th>
+              <th class="p-3">Pts</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="b in myBets[betDivision]" :key="b.id" class="border-b last:border-0">
+              <td class="p-3 font-bold">{{ b.predicted_position }}</td>
+              <td class="p-3">{{ b.athletes?.full_name }}</td>
+              <td class="p-3">{{ b.actual_position ?? '–' }}</td>
+              <td class="p-3 font-semibold">{{ b.points }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="text-sm text-gray-500 mt-2">Total: <span class="font-semibold">{{ betTotal }} pts</span></p>
+      </section>
     </div>
   </div>
 </template>
@@ -109,6 +138,11 @@ const selections = ref({ FPRO: {}, MPRO: {} })
 const existingBets = ref({ FPRO: {}, MPRO: {} })
 const results = ref({ FPRO: [], MPRO: [] })
 const hasResults = ref(false)
+const myBets = ref({ FPRO: [], MPRO: [] })
+const hasBets = ref(false)
+const betDivisions = ref([])
+const betDivision = ref('FPRO')
+const betTotal = ref(0)
 
 const lockDate = computed(() => {
   if (!race.value) return null
@@ -131,20 +165,6 @@ onMounted(async () => {
     .single()
   race.value = r
 
-  const { data: existing } = await supabase
-    .from('bets')
-    .select('*, athletes(*)')
-    .eq('race_id', route.params.id)
-    .eq('user_id', auth.user.id)
-  if (existing?.length) {
-    placed.value = true
-    for (const b of existing) {
-      existingBets.value[b.division][b.predicted_position] = b
-      selections.value[b.division][b.predicted_position] = b.athletes
-      searchQueries.value[b.division][b.predicted_position] = b.athletes?.full_name || ''
-    }
-  }
-
   const { data: rrs } = await supabase
     .from('race_results')
     .select('*, athletes(*)')
@@ -157,6 +177,34 @@ onMounted(async () => {
       if (!results.value[rr.division]) results.value[rr.division] = []
       results.value[rr.division].push(rr)
     }
+  }
+
+  const { data: bets } = await supabase
+    .from('bets')
+    .select('*, athletes(*)')
+    .eq('race_id', route.params.id)
+    .eq('user_id', auth.user.id)
+    .order('predicted_position')
+  if (bets?.length) {
+    const resultMap = {}
+    for (const div of Object.keys(results.value)) {
+      for (const rr of results.value[div]) {
+        resultMap[`${div}:${rr.athlete_id}`] = rr.position
+      }
+    }
+    for (const b of bets) {
+      existingBets.value[b.division][b.predicted_position] = b
+      selections.value[b.division][b.predicted_position] = b.athletes
+      searchQueries.value[b.division][b.predicted_position] = b.athletes?.full_name || ''
+      b.actual_position = resultMap[`${b.division}:${b.athlete_id}`] ?? null
+      if (!myBets.value[b.division]) myBets.value[b.division] = []
+      myBets.value[b.division].push(b)
+    }
+    placed.value = true
+    betDivisions.value = Object.keys(myBets.value)
+    betDivision.value = betDivisions.value[0]
+    betTotal.value = bets.reduce((sum, b) => sum + (b.points || 0), 0)
+    hasBets.value = true
   }
 
   loading.value = false
