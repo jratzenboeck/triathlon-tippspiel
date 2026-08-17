@@ -20,10 +20,12 @@
 
 <script setup>
 import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { supabase } from '../lib/supabase'
 
 const auth = useAuthStore()
+const router = useRouter()
 
 onMounted(() => {
   auth.fetchUser()
@@ -34,5 +36,6 @@ onMounted(() => {
 
 async function handleSignOut() {
   await auth.signOut()
+  router.push('/login')
 }
 </script>

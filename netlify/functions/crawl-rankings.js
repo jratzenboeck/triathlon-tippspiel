@@ -50,10 +50,14 @@ async function crawlDivision(division) {
 
 async function crawlHandler() {
   try {
+    console.log('Starting rankings crawl...')
     const men = await crawlDivision('MPRO')
+    console.log(`Done: ${men} men athletes`)
     const women = await crawlDivision('FPRO')
+    console.log(`Done: ${women} women athletes`)
     return { statusCode: 200, body: JSON.stringify({ imported: { men, women } }) }
   } catch (error) {
+    console.error('Rankings crawl failed:', error.message)
     return { statusCode: 500, body: JSON.stringify({ error: error.message }) }
   }
 }

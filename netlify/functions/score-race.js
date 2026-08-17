@@ -8,6 +8,7 @@ const supabase = createClient(
 
 async function scoreHandler() {
   try {
+    console.log('Starting race scoring...')
     const { data: races } = await supabase
       .from('races')
       .select('id')
@@ -15,9 +16,11 @@ async function scoreHandler() {
       .lt('date', new Date().toISOString().split('T')[0])
 
     if (!races?.length) {
+      console.log('No races to score')
       return { statusCode: 200, body: JSON.stringify({ message: 'No races to score' }) }
     }
 
+    console.log(`Found ${races.length} races to score`)
     let totalUpdated = 0
 
     for (const race of races) {
@@ -27,14 +30,20 @@ async function scoreHandler() {
         .eq('race_id', race.id)
         .not('position', 'is', null)
 
-      if (!results?.length) continue
+      if (!results?.length) {
+        console.log(`  No results for race ${race.id}`)
+        continue
+      }
 
       const { data: bets } = await supabase
         .from('bets')
         .select('id, user_id, athlete_id, division, predicted_position')
         .eq('race_id', race.id)
 
-      if (!bets?.length) continue
+      if (!bets?.length) {
+        console.log(`  No bets for race ${race.id}`)
+        continue
+      }
 
       const resultMap = {}
       for (const r of results) {
@@ -69,8 +78,10 @@ async function scoreHandler() {
       }
     }
 
+    console.log(`Done: ${totalUpdated} bets scored`)
     return { statusCode: 200, body: JSON.stringify({ scored: totalUpdated }) }
   } catch (error) {
+    console.error('Scoring failed:', error.message)
     return { statusCode: 500, body: JSON.stringify({ error: error.message }) }
   }
 }

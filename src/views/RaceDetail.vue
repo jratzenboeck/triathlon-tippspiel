@@ -25,13 +25,13 @@
         <div class="space-y-3">
           <div v-for="pos in 5" :key="pos" class="flex items-center gap-3">
             <span class="font-bold text-gray-500 w-8">{{ pos }}.</span>
-            <input type="text"
-              :placeholder="'Search athlete...'"
-              v-model="searchQueries[activeDivision][pos]"
-              @input="searchAthletes(activeDivision, pos)"
-              class="flex-1 rounded border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" />
-            <div v-if="searchResults[activeDivision][pos]?.length" class="relative">
-              <div class="absolute right-0 top-0 bg-white border rounded shadow-lg z-10 w-64">
+            <div class="relative flex-1">
+              <input type="text"
+                :placeholder="'Search athlete...'"
+                v-model="searchQueries[activeDivision][pos]"
+                @input="searchAthletes(activeDivision, pos)"
+                class="w-full rounded border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" />
+              <div v-if="searchResults[activeDivision][pos]?.length" @click.stop class="absolute left-0 top-full mt-1 bg-white border rounded shadow-lg z-10 w-full">
                 <button v-for="a in searchResults[activeDivision][pos]" :key="a.id"
                   @click="selectAthlete(activeDivision, pos, a)"
                   class="block w-full text-left px-3 py-2 text-sm hover:bg-indigo-50">
@@ -118,7 +118,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/auth'
@@ -157,7 +157,20 @@ const isLocked = computed(() => {
   return new Date() > lockDate.value
 })
 
+function closeAllDropdowns() {
+  for (const div of ['FPRO', 'MPRO']) {
+    for (let pos = 1; pos <= 5; pos++) {
+      searchResults.value[div][pos] = []
+    }
+  }
+}
+
+function onDocumentClick() {
+  closeAllDropdowns()
+}
+
 onMounted(async () => {
+  document.addEventListener('click', onDocumentClick)
   const { data: r } = await supabase
     .from('races')
     .select('*')
@@ -208,6 +221,10 @@ onMounted(async () => {
   }
 
   loading.value = false
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', onDocumentClick)
 })
 
 async function searchAthletes(division, pos) {

@@ -61,14 +61,21 @@ async function crawlHandler() {
       .limit(10)
 
     if (!races?.length) {
+      console.log('No races to crawl')
       return { statusCode: 200, body: JSON.stringify({ message: 'No races to crawl' }) }
     }
+
+    console.log(`Found ${races.length} races to crawl`)
 
     let totalResults = 0
 
     for (const race of races) {
+      console.log(`Crawling ${race.slug} (${race.date})...`)
       const results = await crawlRaceResults(race)
-      if (!results.length) continue
+      if (!results.length) {
+        console.log(`  No results found for ${race.slug}`)
+        continue
+      }
 
       for (const r of results) {
         const { data: athletes } = await supabase
@@ -78,7 +85,10 @@ async function crawlHandler() {
           .limit(1)
 
         const athleteId = athletes?.[0]?.id
-        if (!athleteId) continue
+        if (!athleteId) {
+          console.log(`  Athlete not found: ${r.athlete_slug}`)
+          continue
+        }
 
         await supabase.from('race_results').upsert({
           race_id: r.race_id,
@@ -97,8 +107,10 @@ async function crawlHandler() {
       totalResults += results.length
     }
 
+    console.log(`Done: ${races.length} races, ${totalResults} results`)
     return { statusCode: 200, body: JSON.stringify({ races: races.length, results: totalResults }) }
   } catch (error) {
+    console.error('Crawl failed:', error.message)
     return { statusCode: 500, body: JSON.stringify({ error: error.message }) }
   }
 }

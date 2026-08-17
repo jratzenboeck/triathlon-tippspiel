@@ -47,6 +47,7 @@ async function crawl() {
     })
   })
 
+  console.log(`Found ${races.length} races on calendar`)
   for (const race of races) {
     await supabase.from('races').upsert(race, { onConflict: 'slug' })
   }
@@ -56,9 +57,12 @@ async function crawl() {
 
 async function crawlHandler() {
   try {
+    console.log('Starting calendar crawl...')
     const count = await crawl()
+    console.log(`Done: ${count} races imported`)
     return { statusCode: 200, body: JSON.stringify({ imported: count }) }
   } catch (error) {
+    console.error('Calendar crawl failed:', error.message)
     return { statusCode: 500, body: JSON.stringify({ error: error.message }) }
   }
 }
