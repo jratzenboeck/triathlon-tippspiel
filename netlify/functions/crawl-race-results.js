@@ -57,7 +57,7 @@ async function crawlHandler() {
       .from('races')
       .select('id, slug, date')
       .lt('date', new Date().toISOString().split('T')[0])
-      .is('crawled_at', null)
+      .is('results_crawled_at', null)
       .limit(10)
 
     if (!races?.length) {
@@ -101,7 +101,7 @@ async function crawlHandler() {
 
       await supabase
         .from('races')
-        .update({ crawled_at: new Date().toISOString() })
+        .update({ results_crawled_at: new Date().toISOString() })
         .eq('id', race.id)
 
       totalResults += results.length

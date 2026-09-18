@@ -1,0 +1,1 @@
+alter table public.races add column results_crawled_at timestamptz;

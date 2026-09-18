@@ -12,7 +12,7 @@ async function scoreHandler() {
     const { data: races } = await supabase
       .from('races')
       .select('id')
-      .not('crawled_at', 'is', null)
+      .not('results_crawled_at', 'is', null)
       .lt('date', new Date().toISOString().split('T')[0])
 
     if (!races?.length) {
