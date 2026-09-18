@@ -36,10 +36,8 @@
       <section>
         <h2 class="text-lg font-semibold mb-3">Invite members</h2>
         <form @submit.prevent="handleInvite" class="flex gap-2">
-          <input v-model="inviteEmail" type="email" placeholder="Email address" required
-            class="flex-1 rounded border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" />
-          <button type="submit" :disabled="sending"
-            class="bg-indigo-600 text-white py-2 px-4 rounded text-sm hover:bg-indigo-700 disabled:opacity-50">
+          <input v-model="inviteEmail" type="email" placeholder="Email address" required class="input flex-1 !mt-0" />
+          <button type="submit" :disabled="sending" class="btn btn-primary">
             {{ sending ? 'Sending...' : 'Invite' }}
           </button>
         </form>

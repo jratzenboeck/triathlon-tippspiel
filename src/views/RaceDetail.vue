@@ -11,13 +11,16 @@
       </div>
 
       <div v-if="!isLocked" class="mb-6">
+        <div class="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
+          Startlists are not crawled yet. Please pick athletes who are actually on the startlist — the search shows all athletes in the PTO rankings.
+        </div>
         <div class="flex gap-2 mb-4">
           <button @click="activeDivision = 'FPRO'"
-            :class="['px-4 py-2 rounded text-sm font-medium', activeDivision === 'FPRO' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700']">
+            :class="['btn-tab', activeDivision === 'FPRO' ? 'btn-tab-active' : 'btn-tab-inactive']">
             Women
           </button>
           <button @click="activeDivision = 'MPRO'"
-            :class="['px-4 py-2 rounded text-sm font-medium', activeDivision === 'MPRO' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700']">
+            :class="['btn-tab', activeDivision === 'MPRO' ? 'btn-tab-active' : 'btn-tab-inactive']">
             Men
           </button>
         </div>
@@ -30,7 +33,7 @@
                 :placeholder="'Search athlete...'"
                 v-model="searchQueries[activeDivision][pos]"
                 @input="searchAthletes(activeDivision, pos)"
-                class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white shadow-sm text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" />
+                class="input !mt-0" />
               <div v-if="searchResults[activeDivision][pos]?.length" @click.stop class="absolute left-0 top-full mt-1.5 z-10 w-full rounded-lg border border-gray-200 bg-white shadow-xl overflow-y-auto max-h-72">
                 <button v-for="a in searchResults[activeDivision][pos]" :key="a.id"
                   @click="selectAthlete(activeDivision, pos, a)"
@@ -46,10 +49,9 @@
 
         <div v-if="placed" class="mt-4 flex items-center gap-4 text-sm">
           <span class="text-green-600 font-medium">Bet saved</span>
-          <button @click="saveBet" class="text-indigo-600 hover:underline">Update</button>
+          <button @click="saveBet" class="text-indigo-600 font-medium hover:underline">Update</button>
         </div>
-        <button v-else @click="saveBet" :disabled="saving"
-          class="mt-4 bg-indigo-600 text-white py-2 px-6 rounded hover:bg-indigo-700 disabled:opacity-50">
+        <button v-else @click="saveBet" :disabled="saving" class="btn btn-primary mt-4">
           {{ saving ? 'Saving...' : 'Place bet' }}
         </button>
         <p v-if="saveError" class="text-red-600 text-sm mt-2">{{ saveError }}</p>
@@ -59,11 +61,11 @@
         <h2 class="text-lg font-semibold mb-3">Results</h2>
         <div class="flex gap-2 mb-4">
           <button @click="activeDivision = 'FPRO'"
-            :class="['px-4 py-2 rounded text-sm font-medium', activeDivision === 'FPRO' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700']">
+            :class="['btn-tab', activeDivision === 'FPRO' ? 'btn-tab-active' : 'btn-tab-inactive']">
             Women
           </button>
           <button @click="activeDivision = 'MPRO'"
-            :class="['px-4 py-2 rounded text-sm font-medium', activeDivision === 'MPRO' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700']">
+            :class="['btn-tab', activeDivision === 'MPRO' ? 'btn-tab-active' : 'btn-tab-inactive']">
             Men
           </button>
         </div>
@@ -91,7 +93,7 @@
         <h2 class="text-lg font-semibold mb-3">Your bets</h2>
         <div class="flex gap-2 mb-4">
           <button v-for="div in betDivisions" :key="div" @click="betDivision = div"
-            :class="['px-4 py-2 rounded text-sm font-medium', betDivision === div ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700']">
+            :class="['btn-tab', betDivision === div ? 'btn-tab-active' : 'btn-tab-inactive']">
             {{ div === 'FPRO' ? 'Women' : 'Men' }}
           </button>
         </div>
@@ -295,6 +297,13 @@ async function saveBet() {
 }
 
 function formatDate(date) {
-  return new Date(date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  let d
+  if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}/.test(date)) {
+    const [y, m, day] = date.slice(0, 10).split('-').map(Number)
+    d = new Date(y, m - 1, day)
+  } else {
+    d = new Date(date)
+  }
+  return d.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 </script>

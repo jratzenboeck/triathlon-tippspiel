@@ -2,8 +2,7 @@
   <div>
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold">Groups</h1>
-      <router-link to="/groups/new"
-        class="bg-indigo-600 text-white py-2 px-4 rounded text-sm hover:bg-indigo-700">
+      <router-link to="/groups/new" class="btn btn-primary">
         New group
       </router-link>
     </div>

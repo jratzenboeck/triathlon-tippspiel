@@ -13,12 +13,11 @@
       <p class="text-lg mb-4">You've been invited to join <strong>{{ groupName }}</strong></p>
       <div v-if="!auth.user">
         <p class="text-sm text-gray-500 mb-4">Sign up or sign in to join.</p>
-        <router-link to="/signup" class="bg-indigo-600 text-white py-2 px-6 rounded inline-block hover:bg-indigo-700">Sign up</router-link>
+        <router-link to="/signup" class="btn btn-primary">Sign up</router-link>
         <span class="mx-2 text-gray-400">or</span>
         <router-link to="/login" class="text-indigo-600 hover:underline">Sign in</router-link>
       </div>
-      <button v-else @click="acceptInvite" :disabled="accepting"
-        class="bg-indigo-600 text-white py-2 px-6 rounded hover:bg-indigo-700 disabled:opacity-50">
+      <button v-else @click="acceptInvite" :disabled="accepting" class="btn btn-primary">
         {{ accepting ? 'Joining...' : 'Join group' }}
       </button>
     </div>

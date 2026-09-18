@@ -1,19 +1,20 @@
 <template>
   <div class="max-w-md mx-auto mt-16">
-    <h1 class="text-2xl font-bold mb-6">Sign in</h1>
+    <div class="flex flex-col items-center mb-8">
+      <AppLogo :size="64" />
+      <h1 class="text-2xl font-bold mt-4">Triathlon Tippspiel</h1>
+    </div>
     <form @submit.prevent="handleLogin" class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700">Email</label>
-        <input v-model="email" type="email" required
-          class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+        <input v-model="email" type="email" required class="input" />
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700">Password</label>
-        <input v-model="password" type="password" required
-          class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+        <input v-model="password" type="password" required class="input" />
       </div>
       <p v-if="error" class="text-red-600 text-sm">{{ error }}</p>
-      <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700">
+      <button type="submit" class="btn btn-primary w-full">
         Sign in
       </button>
     </form>
@@ -28,6 +29,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import AppLogo from '../components/AppLogo.vue'
 
 const router = useRouter()
 const auth = useAuthStore()

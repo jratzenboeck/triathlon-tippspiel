@@ -4,22 +4,19 @@
     <form @submit.prevent="handleSignUp" class="space-y-4">
       <div>
         <label class="block text-sm font-medium text-gray-700">Display name</label>
-        <input v-model="displayName" type="text" required
-          class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+        <input v-model="displayName" type="text" required class="input" />
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700">Email</label>
-        <input v-model="email" type="email" required
-          class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+        <input v-model="email" type="email" required class="input" />
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700">Password</label>
-        <input v-model="password" type="password" required minlength="6"
-          class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+        <input v-model="password" type="password" required minlength="6" class="input" />
       </div>
       <p v-if="error" class="text-red-600 text-sm">{{ error }}</p>
       <p v-if="success" class="text-green-600 text-sm">Check your email for the verification link.</p>
-      <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700">
+      <button type="submit" class="btn btn-primary w-full">
         Sign up
       </button>
     </form>
