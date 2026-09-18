@@ -30,12 +30,14 @@
                 :placeholder="'Search athlete...'"
                 v-model="searchQueries[activeDivision][pos]"
                 @input="searchAthletes(activeDivision, pos)"
-                class="w-full rounded border-gray-300 shadow-sm text-sm focus:border-indigo-500 focus:ring-indigo-500" />
-              <div v-if="searchResults[activeDivision][pos]?.length" @click.stop class="absolute left-0 top-full mt-1 bg-white border rounded shadow-lg z-10 w-full">
+                class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white shadow-sm text-sm text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200" />
+              <div v-if="searchResults[activeDivision][pos]?.length" @click.stop class="absolute left-0 top-full mt-1.5 z-10 w-full rounded-lg border border-gray-200 bg-white shadow-xl overflow-y-auto max-h-72">
                 <button v-for="a in searchResults[activeDivision][pos]" :key="a.id"
                   @click="selectAthlete(activeDivision, pos, a)"
-                  class="block w-full text-left px-3 py-2 text-sm hover:bg-indigo-50">
-                  {{ a.full_name }} <span class="text-gray-400">{{ a.country }}</span>
+                  class="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm hover:bg-indigo-50 border-b border-gray-100 last:border-0">
+                  <span class="text-base leading-none">{{ flag(a.country) }}</span>
+                  <span class="flex-1 truncate">{{ a.full_name }}</span>
+                  <span class="text-gray-400 text-xs">{{ a.country }}</span>
                 </button>
               </div>
             </div>
@@ -78,7 +80,12 @@
             <tr v-for="r in results[activeDivision]" :key="r.id" class="border-b last:border-0">
               <td class="p-3 font-bold">{{ r.position }}</td>
               <td class="p-3">{{ r.athletes?.full_name }}</td>
-              <td class="p-3">{{ r.athletes?.country }}</td>
+              <td class="p-3">
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="text-base leading-none">{{ flag(r.athletes?.country) }}</span>
+                  {{ r.athletes?.country }}
+                </span>
+              </td>
               <td class="p-3">{{ r.finish_time }}</td>
             </tr>
           </tbody>
@@ -105,7 +112,12 @@
           <tbody>
             <tr v-for="b in myBets[betDivision]" :key="b.id" class="border-b last:border-0">
               <td class="p-3 font-bold">{{ b.predicted_position }}</td>
-              <td class="p-3">{{ b.athletes?.full_name }}</td>
+              <td class="p-3">
+                <span class="inline-flex items-center gap-2">
+                  <span v-if="b.athletes?.country" class="text-base leading-none">{{ flag(b.athletes.country) }}</span>
+                  {{ b.athletes?.full_name }}
+                </span>
+              </td>
               <td class="p-3">{{ b.actual_position ?? '–' }}</td>
               <td class="p-3 font-semibold">{{ b.points }}</td>
             </tr>
@@ -288,5 +300,12 @@ async function saveBet() {
 
 function formatDate(date) {
   return new Date(date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+}
+
+function flag(country) {
+  if (!country || country.length !== 2) return ''
+  country = country.toUpperCase()
+  if (country < 'AA' || country > 'ZZ') return ''
+  return String.fromCodePoint(...[...country].map((c) => 127397 + c.charCodeAt(0)))
 }
 </script>
