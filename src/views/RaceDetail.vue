@@ -80,12 +80,7 @@
             <tr v-for="r in results[activeDivision]" :key="r.id" class="border-b last:border-0">
               <td class="p-3 font-bold">{{ r.position }}</td>
               <td class="p-3">{{ r.athletes?.full_name }}</td>
-              <td class="p-3">
-                <span class="inline-flex items-center gap-1.5">
-                  <span class="text-base leading-none">{{ flag(r.athletes?.country) }}</span>
-                  {{ r.athletes?.country }}
-                </span>
-              </td>
+              <td class="p-3"><span class="text-base leading-none">{{ flag(r.athletes?.country) }}</span></td>
               <td class="p-3">{{ r.finish_time }}</td>
             </tr>
           </tbody>
@@ -134,6 +129,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/auth'
+import { flag } from '../lib/flags'
 
 const route = useRoute()
 const auth = useAuthStore()
@@ -300,12 +296,5 @@ async function saveBet() {
 
 function formatDate(date) {
   return new Date(date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-}
-
-function flag(country) {
-  if (!country || country.length !== 2) return ''
-  country = country.toUpperCase()
-  if (country < 'AA' || country > 'ZZ') return ''
-  return String.fromCodePoint(...[...country].map((c) => 127397 + c.charCodeAt(0)))
 }
 </script>

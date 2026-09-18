@@ -7,6 +7,7 @@
         </router-link>
         <div class="flex items-center gap-4 text-sm">
           <router-link to="/groups" class="text-gray-600 hover:text-gray-900">Groups</router-link>
+          <router-link to="/bets" class="text-gray-600 hover:text-gray-900">My bets</router-link>
           <router-link to="/profile" class="text-gray-600 hover:text-gray-900">{{ auth.profile?.display_name }}</router-link>
           <button @click="handleSignOut" class="text-gray-400 hover:text-gray-600">Sign out</button>
         </div>
