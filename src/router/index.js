@@ -23,6 +23,11 @@ const routes = [
     component: () => import('../views/Bets.vue'),
   },
   {
+    path: '/leaderboard',
+    name: 'leaderboard',
+    component: () => import('../views/GlobalLeaderboard.vue'),
+  },
+  {
     path: '/groups',
     name: 'groups',
     component: () => import('../views/Groups.vue'),
