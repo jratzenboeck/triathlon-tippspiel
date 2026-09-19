@@ -25,15 +25,23 @@
 
       <section class="mb-8">
         <h2 class="text-lg font-semibold mb-3">Members</h2>
-        <div class="flex flex-wrap gap-2">
-          <span v-for="m in members" :key="m.id"
-            class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
-            {{ m.display_name }}
-          </span>
+        <p v-if="memberError" class="mb-2 text-sm text-red-600">{{ memberError }}</p>
+        <div v-for="m in members" :key="m.id"
+          class="bg-white rounded-lg shadow-sm border p-3 mb-2 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span>{{ m.display_name }}</span>
+            <span v-if="m.is_admin" class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">
+              Admin
+            </span>
+          </div>
+          <button v-if="isAdmin && !m.is_admin" @click="grantAdmin(m.id)" :disabled="grantingId === m.id"
+            class="btn btn-tab-inactive text-sm">
+            {{ grantingId === m.id ? 'Granting...' : 'Make admin' }}
+          </button>
         </div>
       </section>
 
-      <section>
+      <section v-if="isAdmin">
         <h2 class="text-lg font-semibold mb-3">Invite members</h2>
         <form @submit.prevent="handleInvite" class="flex gap-2">
           <input v-model="inviteEmail" type="email" placeholder="Email address" required class="input flex-1 !mt-0" />
@@ -45,6 +53,7 @@
           {{ inviteMsg }}
         </p>
       </section>
+      <p v-else class="text-sm text-gray-500">Only group admins can invite members.</p>
     </div>
   </div>
 </template>
@@ -62,6 +71,9 @@ const loading = ref(true)
 const group = ref(null)
 const members = ref([])
 const leaderboard = ref([])
+const isAdmin = ref(false)
+const grantingId = ref(null)
+const memberError = ref('')
 const inviteEmail = ref('')
 const sending = ref(false)
 const inviteMsg = ref('')
@@ -77,9 +89,13 @@ onMounted(async () => {
 
   const { data: ms } = await supabase
     .from('group_members')
-    .select('profiles(*)')
+    .select('user_id, is_admin, profiles(*)')
     .eq('group_id', route.params.id)
-  members.value = (ms || []).map(m => m.profiles).filter(Boolean)
+  members.value = (ms || [])
+    .map(m => ({ id: m.user_id, display_name: m.profiles?.display_name, is_admin: m.is_admin }))
+    .filter(m => m.display_name)
+
+  isAdmin.value = !!members.value.find(m => m.id === auth.user.id)?.is_admin
 
   const { data: bs } = await supabase
     .from('bets')
@@ -96,6 +112,24 @@ onMounted(async () => {
 
   loading.value = false
 })
+
+async function grantAdmin(userId) {
+  grantingId.value = userId
+  memberError.value = ''
+  try {
+    const { error } = await supabase.rpc('grant_group_admin', {
+      group_id: group.value.id,
+      user_id: userId,
+    })
+    if (error) throw error
+    const member = members.value.find(m => m.id === userId)
+    if (member) member.is_admin = true
+  } catch (e) {
+    memberError.value = e.message
+  } finally {
+    grantingId.value = null
+  }
+}
 
 async function handleInvite() {
   sending.value = true

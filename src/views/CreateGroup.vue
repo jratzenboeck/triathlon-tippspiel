@@ -40,7 +40,7 @@ async function handleCreate() {
 
   await supabase
     .from('group_members')
-    .insert({ group_id: group.id, user_id: auth.user.id })
+    .insert({ group_id: group.id, user_id: auth.user.id, is_admin: true })
 
   router.push(`/groups/${group.id}`)
 }

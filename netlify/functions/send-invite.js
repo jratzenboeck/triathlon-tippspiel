@@ -22,6 +22,20 @@ export async function handler(event) {
 
     const { groupId, email } = JSON.parse(event.body)
 
+    const { data: membership } = await supabase
+      .from('group_members')
+      .select('is_admin')
+      .eq('group_id', groupId)
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (!membership?.is_admin) {
+      return {
+        statusCode: 403,
+        body: JSON.stringify({ error: 'Only group admins can invite members' }),
+      }
+    }
+
     const { data: invite, error: insertError } = await supabase
       .from('invites')
       .insert({
