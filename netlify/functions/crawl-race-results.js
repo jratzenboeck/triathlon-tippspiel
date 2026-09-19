@@ -30,7 +30,7 @@ async function crawlRaceResults(race) {
       if (posText.toLowerCase() === 'dnf') return
 
       const position = parseInt(posText)
-      if (isNaN(position) || position > 5) return
+      if (isNaN(position)) return
 
       const nameLink = $cells.eq(1).find('a[href^="/athlete/"]')
       const athleteSlug = nameLink.attr('href')?.replace('/athlete/', '')
@@ -77,34 +77,39 @@ async function crawlHandler() {
         continue
       }
 
-      for (const r of results) {
-        const { data: athletes } = await supabase
-          .from('athletes')
-          .select('id')
-          .eq('slug', r.athlete_slug)
-          .limit(1)
+      const slugs = [...new Set(results.map((r) => r.athlete_slug))]
+      const { data: athletes } = await supabase
+        .from('athletes')
+        .select('id, slug')
+        .in('slug', slugs)
 
-        const athleteId = athletes?.[0]?.id
+      const athleteIdBySlug = new Map((athletes || []).map((a) => [a.slug, a.id]))
+
+      const rows = []
+      for (const r of results) {
+        const athleteId = athleteIdBySlug.get(r.athlete_slug)
         if (!athleteId) {
           console.log(`  Athlete not found: ${r.athlete_slug}`)
           continue
         }
-
-        await supabase.from('race_results').upsert({
+        rows.push({
           race_id: r.race_id,
           athlete_id: athleteId,
           division: r.division,
           position: r.position,
           finish_time: r.finish_time,
-        }, { onConflict: 'race_id,athlete_id,division' })
+        })
       }
+
+      const { error } = await supabase.from('race_results').upsert(rows, { onConflict: 'race_id,athlete_id,division' })
+      if (error) console.error(`  Upsert failed for ${race.slug}:`, error.message)
 
       await supabase
         .from('races')
         .update({ results_crawled_at: new Date().toISOString() })
         .eq('id', race.id)
 
-      totalResults += results.length
+      totalResults += rows.length
     }
 
     console.log(`Done: ${races.length} races, ${totalResults} results`)
