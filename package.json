@@ -15,6 +15,7 @@
     "pinia": "^2.2.0",
     "resend": "^4.0.0",
     "vue": "^3.4.0",
+    "vue-i18n": "^11.4.12",
     "vue-router": "^4.4.0"
   },
   "devDependencies": {

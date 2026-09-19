@@ -1,13 +1,13 @@
 <template>
   <div>
-    <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
-    <div v-if="loading" class="text-gray-500">Loading...</div>
+    <h1 class="text-2xl font-bold mb-6">{{ $t('dashboard.title') }}</h1>
+    <div v-if="loading" class="text-gray-500">{{ $t('common.loading') }}</div>
     <div v-else>
       <section class="mb-8">
-        <h2 class="text-lg font-semibold mb-3">Your groups</h2>
+        <h2 class="text-lg font-semibold mb-3">{{ $t('dashboard.yourGroups') }}</h2>
         <div v-if="groups.length === 0" class="text-gray-400">
-          You are not in any groups yet.
-          <router-link to="/groups/new" class="text-indigo-600">Create one</router-link>.
+          {{ $t('dashboard.noGroups') }}
+          <router-link to="/groups/new" class="text-indigo-600">{{ $t('dashboard.createOne') }}</router-link>.
         </div>
         <div v-for="group in groups" :key="group.id"
           class="bg-white rounded-lg shadow-sm border p-4 mb-3">
@@ -18,8 +18,8 @@
       </section>
 
       <section class="mb-8">
-        <h2 class="text-lg font-semibold mb-3">Previous races</h2>
-        <div v-if="past.length === 0" class="text-gray-400">No previous races.</div>
+        <h2 class="text-lg font-semibold mb-3">{{ $t('dashboard.previousRaces') }}</h2>
+        <div v-if="past.length === 0" class="text-gray-400">{{ $t('dashboard.noPreviousRaces') }}</div>
         <div v-for="race in past" :key="race.id"
           class="bg-white rounded-lg shadow-sm border p-4 mb-3 flex items-center justify-between">
           <div>
@@ -33,8 +33,8 @@
       </section>
 
       <section>
-        <h2 class="text-lg font-semibold mb-3">Upcoming races</h2>
-        <div v-if="upcoming.length === 0" class="text-gray-400">No upcoming races.</div>
+        <h2 class="text-lg font-semibold mb-3">{{ $t('dashboard.upcomingRaces') }}</h2>
+        <div v-if="upcoming.length === 0" class="text-gray-400">{{ $t('dashboard.noUpcomingRaces') }}</div>
         <div v-for="race in upcoming" :key="race.id"
           class="bg-white rounded-lg shadow-sm border p-4 mb-3 flex items-center justify-between">
           <div>
@@ -52,9 +52,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/auth'
 
+const { locale } = useI18n()
 const auth = useAuthStore()
 const loading = ref(true)
 const upcoming = ref([])
@@ -84,6 +86,6 @@ onMounted(async () => {
 })
 
 function formatDate(date) {
-  return new Date(date).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+  return new Date(date).toLocaleDateString(locale.value, { day: 'numeric', month: 'long', year: 'numeric' })
 }
 </script>

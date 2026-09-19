@@ -1,14 +1,14 @@
 <template>
   <div class="max-w-md mx-auto mt-8">
-    <h1 class="text-2xl font-bold mb-6">Create group</h1>
+    <h1 class="text-2xl font-bold mb-6">{{ $t('createGroup.title') }}</h1>
     <form @submit.prevent="handleCreate" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium text-gray-700">Group name</label>
+        <label class="block text-sm font-medium text-gray-700">{{ $t('createGroup.groupName') }}</label>
         <input v-model="name" type="text" required class="input" />
       </div>
       <p v-if="error" class="text-red-600 text-sm">{{ error }}</p>
       <button type="submit" class="btn btn-primary w-full">
-        Create
+        {{ $t('createGroup.create') }}
       </button>
     </form>
   </div>
