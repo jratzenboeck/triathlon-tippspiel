@@ -7,7 +7,7 @@ export default {
     signOut: 'Sign out',
     openMenu: 'Open menu',
     closeMenu: 'Close menu',
-    language: 'Language',
+    language: 'Language'
   },
   common: {
     loading: 'Loading...',
@@ -20,7 +20,7 @@ export default {
     position: 'Pos',
     total: 'Total',
     prediction: 'Prediction',
-    pred: 'Pred',
+    pred: 'Pred'
   },
   dashboard: {
     title: 'Dashboard',
@@ -30,7 +30,7 @@ export default {
     previousRaces: 'Previous races',
     noPreviousRaces: 'No previous races.',
     upcomingRaces: 'Upcoming races',
-    noUpcomingRaces: 'No upcoming races.',
+    noUpcomingRaces: 'No upcoming races.'
   },
   bets: {
     title: 'My bets',
@@ -40,7 +40,7 @@ export default {
     count: '{count} bet | {count} bets',
     open: 'Betting open',
     scored: 'Scored',
-    closed: 'Betting closed',
+    closed: 'Betting closed'
   },
   race: {
     notFound: 'Race not found.',
@@ -60,19 +60,19 @@ export default {
     startlistMissingDivision:
       'There is no {division} pro race / start list for this event — betting in this division is not possible.',
     startlist: 'Start list',
-    bib: 'Bib',
+    bib: 'Bib'
   },
   profile: {
     title: 'Profile',
     displayName: 'Display name',
-    email: 'Email',
+    email: 'Email'
   },
   groups: {
     title: 'Groups',
     newGroup: 'New group',
     none: 'No groups yet.',
     createOne: 'Create one',
-    created: 'Created {date}',
+    created: 'Created {date}'
   },
   groupDetail: {
     notFound: 'Group not found.',
@@ -85,14 +85,14 @@ export default {
     invite: 'Invite',
     sending: 'Sending...',
     inviteSent: 'Invite sent!',
-    inviteFailed: 'Failed to send invite',
+    inviteFailed: 'Failed to send invite'
   },
   login: {
     email: 'Email',
     password: 'Password',
     signIn: 'Sign in',
     noAccount: 'No account?',
-    signUp: 'Sign up',
+    signUp: 'Sign up'
   },
   signup: {
     title: 'Sign up',
@@ -101,7 +101,7 @@ export default {
     password: 'Password',
     checkEmail: 'Check your email for the verification link.',
     alreadyHaveAccount: 'Already have an account?',
-    signIn: 'Sign in',
+    signIn: 'Sign in'
   },
   invite: {
     processing: 'Processing invite...',
@@ -116,17 +116,17 @@ export default {
     joining: 'Joining...',
     joinGroup: 'Join group',
     notFound: 'Invite not found or already used.',
-    aGroup: 'the group',
+    aGroup: 'the group'
   },
   createGroup: {
     title: 'Create group',
     groupName: 'Group name',
-    create: 'Create',
+    create: 'Create'
   },
   leaderboard: {
     title: 'Global leaderboard',
     description: 'Points earned across all races and groups.',
     noBets: 'No bets placed yet.',
-    betCount: '{count} bet | {count} bets',
-  },
+    betCount: '{count} bet | {count} bets'
+  }
 }

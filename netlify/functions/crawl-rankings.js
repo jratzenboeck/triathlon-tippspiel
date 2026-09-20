@@ -2,10 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import * as cheerio from 'cheerio'
 import { schedule } from '@netlify/functions'
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SECRET_KEY
-)
+const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY)
 
 async function crawlDivision(division) {
   const path = division === 'FPRO' ? 'women' : 'men'
@@ -35,8 +32,11 @@ async function crawlDivision(division) {
       full_name: `${firstName} ${lastName}`.trim(),
       country: country?.toUpperCase() || null,
       division,
-      pto_points: parseFloat($el.find('.trow > div:not(.p-1):not(.expand-details):not(.d-flex)').first().text().trim()) || null,
-      ranking_position: parseInt(rankingNumber) || null,
+      pto_points:
+        parseFloat(
+          $el.find('.trow > div:not(.p-1):not(.expand-details):not(.d-flex)').first().text().trim()
+        ) || null,
+      ranking_position: parseInt(rankingNumber) || null
     })
   })
 

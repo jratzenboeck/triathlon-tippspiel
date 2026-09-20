@@ -1,9 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SECRET_KEY
-)
+const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY)
 
 export async function handler(event) {
   if (event.httpMethod !== 'POST') {
@@ -13,7 +10,10 @@ export async function handler(event) {
   try {
     const authHeader = event.headers.authorization
     const token = authHeader?.replace('Bearer ', '')
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    const {
+      data: { user },
+      error: authError
+    } = await supabase.auth.getUser(token)
     if (authError || !user) {
       return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) }
     }
@@ -36,15 +36,15 @@ export async function handler(event) {
 
     if (joinErr) {
       if (joinErr.code === '23505') {
-        return { statusCode: 200, body: JSON.stringify({ groupId: invite.group_id, alreadyMember: true }) }
+        return {
+          statusCode: 200,
+          body: JSON.stringify({ groupId: invite.group_id, alreadyMember: true })
+        }
       }
       throw joinErr
     }
 
-    await supabase
-      .from('invites')
-      .update({ used: true })
-      .eq('id', invite.id)
+    await supabase.from('invites').update({ used: true }).eq('id', invite.id)
 
     const { data: group } = await supabase
       .from('groups')
@@ -54,12 +54,12 @@ export async function handler(event) {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ groupId: invite.group_id, groupName: group?.name }),
+      body: JSON.stringify({ groupId: invite.group_id, groupName: group?.name })
     }
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
+      body: JSON.stringify({ error: error.message })
     }
   }
 }

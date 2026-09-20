@@ -3,49 +3,181 @@ import * as cheerio from 'cheerio'
 import { schedule } from '@netlify/functions'
 import { extractTextItems } from 'unpdf'
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SECRET_KEY
-)
+const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY)
 
 const IRONMAN_PAGE = 'https://www.ironman.com/community/pro-athletes'
-const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+const UA =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
 
 const COUNTRY_CODES = {
-  'united states': 'US', canada: 'CA', mexico: 'MX', 'united kingdom': 'GB',
-  ireland: 'IE', germany: 'DE', france: 'FR', italy: 'IT', spain: 'ES',
-  portugal: 'PT', sweden: 'SE', norway: 'NO', denmark: 'DK', finland: 'FI',
-  netherlands: 'NL', belgium: 'BE', switzerland: 'CH', austria: 'AT',
-  poland: 'PL', 'czech republic': 'CZ', czechia: 'CZ', hungary: 'HU',
-  romania: 'RO', bulgaria: 'BG', greece: 'GR', croatia: 'HR', slovenia: 'SI',
-  slovakia: 'SK', serbia: 'RS', belarus: 'BY', ukraine: 'UA', russia: 'RU',
-  estonia: 'EE', latvia: 'LV', lithuania: 'LT', luxembourg: 'LU',
-  iceland: 'IS', turkey: 'TR', israel: 'IL', 'south africa': 'ZA',
-  namibia: 'NA', zimbabwe: 'ZW', kenya: 'KE', ethiopia: 'ET', morocco: 'MA',
-  egypt: 'EG', japan: 'JP', china: 'CN', 'south korea': 'KR',
-  'hong kong': 'HK', taiwan: 'TW', 'new zealand': 'NZ', singapore: 'SG',
-  malaysia: 'MY', thailand: 'TH', philippines: 'PH', india: 'IN',
-  indonesia: 'ID', vietnam: 'VN', australia: 'AU', brazil: 'BR',
-  argentina: 'AR', chile: 'CL', colombia: 'CO', ecuador: 'EC', peru: 'PE',
-  venezuela: 'VE', uruguay: 'UY', paraguay: 'PY', bolivia: 'BO',
-  'costa rica': 'CR', panama: 'PA', guatemala: 'GT',
-  'dominican republic': 'DO', 'puerto rico': 'PR', cuba: 'CU',
-  jamaica: 'JM', 'trinidad and tobago': 'TT', bermuda: 'BM',
-  'united arab emirates': 'AE', 'saudi arabia': 'SA', kazakhstan: 'KZ',
+  'united states': 'US',
+  canada: 'CA',
+  mexico: 'MX',
+  'united kingdom': 'GB',
+  ireland: 'IE',
+  germany: 'DE',
+  france: 'FR',
+  italy: 'IT',
+  spain: 'ES',
+  portugal: 'PT',
+  sweden: 'SE',
+  norway: 'NO',
+  denmark: 'DK',
+  finland: 'FI',
+  netherlands: 'NL',
+  belgium: 'BE',
+  switzerland: 'CH',
+  austria: 'AT',
+  poland: 'PL',
+  'czech republic': 'CZ',
+  czechia: 'CZ',
+  hungary: 'HU',
+  romania: 'RO',
+  bulgaria: 'BG',
+  greece: 'GR',
+  croatia: 'HR',
+  slovenia: 'SI',
+  slovakia: 'SK',
+  serbia: 'RS',
+  belarus: 'BY',
+  ukraine: 'UA',
+  russia: 'RU',
+  estonia: 'EE',
+  latvia: 'LV',
+  lithuania: 'LT',
+  luxembourg: 'LU',
+  iceland: 'IS',
+  turkey: 'TR',
+  israel: 'IL',
+  'south africa': 'ZA',
+  namibia: 'NA',
+  zimbabwe: 'ZW',
+  kenya: 'KE',
+  ethiopia: 'ET',
+  morocco: 'MA',
+  egypt: 'EG',
+  japan: 'JP',
+  china: 'CN',
+  'south korea': 'KR',
+  'hong kong': 'HK',
+  taiwan: 'TW',
+  'new zealand': 'NZ',
+  singapore: 'SG',
+  malaysia: 'MY',
+  thailand: 'TH',
+  philippines: 'PH',
+  india: 'IN',
+  indonesia: 'ID',
+  vietnam: 'VN',
+  australia: 'AU',
+  brazil: 'BR',
+  argentina: 'AR',
+  chile: 'CL',
+  colombia: 'CO',
+  ecuador: 'EC',
+  peru: 'PE',
+  venezuela: 'VE',
+  uruguay: 'UY',
+  paraguay: 'PY',
+  bolivia: 'BO',
+  'costa rica': 'CR',
+  panama: 'PA',
+  guatemala: 'GT',
+  'dominican republic': 'DO',
+  'puerto rico': 'PR',
+  cuba: 'CU',
+  jamaica: 'JM',
+  'trinidad and tobago': 'TT',
+  bermuda: 'BM',
+  'united arab emirates': 'AE',
+  'saudi arabia': 'SA',
+  kazakhstan: 'KZ',
   mongolia: 'MN',
-  usa: 'US', can: 'CA', mex: 'MX', gbr: 'GB', irl: 'IE', deu: 'DE', fra: 'FR',
-  ita: 'IT', esp: 'ES', prt: 'PT', swe: 'SE', nor: 'NO', dan: 'DK', fin: 'FI',
-  nld: 'NL', bel: 'BE', che: 'CH', aut: 'AT', pol: 'PL', cze: 'CZ', hun: 'HU',
-  rou: 'RO', bul: 'BG', grc: 'GR', hrv: 'HR', svn: 'SI', svk: 'SK', srb: 'RS',
-  blr: 'BY', ukr: 'UA', rus: 'RU', est: 'EE', lva: 'LV', ltu: 'LT', lux: 'LU',
-  isl: 'IS', tur: 'TR', isr: 'IL', zaf: 'ZA', nam: 'NA', zwe: 'ZW', ken: 'KE',
-  eth: 'ET', mar: 'MA', egy: 'EG', jpn: 'JP', chn: 'CN', kor: 'KR', hkg: 'HK',
-  twn: 'TW', nzl: 'NZ', sgp: 'SG', mys: 'MY', tha: 'TH', phl: 'PH', ind: 'IN',
-  idn: 'ID', vnm: 'VN', aus: 'AU', bra: 'BR', arg: 'AR', chl: 'CL', col: 'CO',
-  ecu: 'EC', per: 'PE', ven: 'VE', ury: 'UY', pry: 'PY', bol: 'BO', cri: 'CR',
-  pan: 'PA', gtm: 'GT', dom: 'DO', pri: 'PR', cub: 'CU', jam: 'JM', tto: 'TT',
-  bmu: 'BM', are: 'AE', sau: 'SA', kaz: 'KZ', mng: 'MN', snd: 'SD', dza: 'DZ',
-  pyf: 'PF', kor: 'KR',
+  usa: 'US',
+  can: 'CA',
+  mex: 'MX',
+  gbr: 'GB',
+  irl: 'IE',
+  deu: 'DE',
+  fra: 'FR',
+  ita: 'IT',
+  esp: 'ES',
+  prt: 'PT',
+  swe: 'SE',
+  nor: 'NO',
+  dan: 'DK',
+  fin: 'FI',
+  nld: 'NL',
+  bel: 'BE',
+  che: 'CH',
+  aut: 'AT',
+  pol: 'PL',
+  cze: 'CZ',
+  hun: 'HU',
+  rou: 'RO',
+  bul: 'BG',
+  grc: 'GR',
+  hrv: 'HR',
+  svn: 'SI',
+  svk: 'SK',
+  srb: 'RS',
+  blr: 'BY',
+  ukr: 'UA',
+  rus: 'RU',
+  est: 'EE',
+  lva: 'LV',
+  ltu: 'LT',
+  lux: 'LU',
+  isl: 'IS',
+  tur: 'TR',
+  isr: 'IL',
+  zaf: 'ZA',
+  nam: 'NA',
+  zwe: 'ZW',
+  ken: 'KE',
+  eth: 'ET',
+  mar: 'MA',
+  egy: 'EG',
+  jpn: 'JP',
+  chn: 'CN',
+  kor: 'KR',
+  hkg: 'HK',
+  twn: 'TW',
+  nzl: 'NZ',
+  sgp: 'SG',
+  mys: 'MY',
+  tha: 'TH',
+  phl: 'PH',
+  ind: 'IN',
+  idn: 'ID',
+  vnm: 'VN',
+  aus: 'AU',
+  bra: 'BR',
+  arg: 'AR',
+  chl: 'CL',
+  col: 'CO',
+  ecu: 'EC',
+  per: 'PE',
+  ven: 'VE',
+  ury: 'UY',
+  pry: 'PY',
+  bol: 'BO',
+  cri: 'CR',
+  pan: 'PA',
+  gtm: 'GT',
+  dom: 'DO',
+  pri: 'PR',
+  cub: 'CU',
+  jam: 'JM',
+  tto: 'TT',
+  bmu: 'BM',
+  are: 'AE',
+  sau: 'SA',
+  kaz: 'KZ',
+  mng: 'MN',
+  snd: 'SD',
+  dza: 'DZ',
+  pyf: 'PF'
 }
 
 function norm(str) {
@@ -58,7 +190,9 @@ function norm(str) {
 }
 
 function slugify(str) {
-  return norm(str).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+  return norm(str)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
 function countryCode(name) {
@@ -95,14 +229,17 @@ function getStartListLinks(html) {
     .first()
   if (!button.length) return []
   const links = []
-  button.parent().find('a[href$=".pdf"]').each((_, el) => {
-    const href = $(el).attr('href')
-    if (!href) return
-    links.push({
-      label: $(el).text().replace(/\s+/g, ' ').trim(),
-      url: new URL(href, IRONMAN_PAGE).toString(),
+  button
+    .parent()
+    .find('a[href$=".pdf"]')
+    .each((_, el) => {
+      const href = $(el).attr('href')
+      if (!href) return
+      links.push({
+        label: $(el).text().replace(/\s+/g, ' ').trim(),
+        url: new URL(href, IRONMAN_PAGE).toString()
+      })
     })
-  })
   return links
 }
 
@@ -141,7 +278,7 @@ async function parseStartListPdf(buffer) {
         bib: m[0],
         first_name,
         last_name,
-        country: country.join(' ').trim() || null,
+        country: country.join(' ').trim() || null
       })
     }
   }
@@ -224,7 +361,7 @@ async function crawlHandler() {
           last_name: row.last_name,
           full_name: row.full_name,
           country: countryCode(row.country),
-          division: row.division,
+          division: row.division
         })
       }
       const { data: inserted, error: insErr } = await supabase
@@ -245,7 +382,8 @@ async function crawlHandler() {
     for (const { race, entries } of raceEntries) {
       const records = entries
         .map(({ raceId, row, key }) => {
-          const athlete = byName.get(key) || bySlug.get(slugify(row.first_name + ' ' + row.last_name))
+          const athlete =
+            byName.get(key) || bySlug.get(slugify(row.first_name + ' ' + row.last_name))
           if (!athlete) {
             log.push(`$unmatched: ${row.division} ${row.bib} ${row.first_name} ${row.last_name}`)
             return null
@@ -254,7 +392,7 @@ async function crawlHandler() {
             race_id: raceId,
             athlete_id: athlete.id,
             division: row.division,
-            bib: row.bib,
+            bib: row.bib
           }
         })
         .filter(Boolean)

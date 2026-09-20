@@ -5,25 +5,39 @@
     <div v-else>
       <div class="mb-6">
         <h1 class="text-2xl font-bold">{{ race.name }}</h1>
-        <p class="text-sm text-gray-500">{{ formatDate(race.date) }} &middot; {{ race.tier }} &middot; {{ race.distance }}</p>
-        <p v-if="isLocked" class="text-red-600 text-sm font-medium mt-1">{{ $t('race.bettingClosed') }}</p>
-        <p v-else class="text-green-600 text-sm font-medium mt-1">{{ $t('race.bettingOpenUntil', { date: formatDate(lockDate) }) }}</p>
+        <p class="text-sm text-gray-500">
+          {{ formatDate(race.date) }} &middot; {{ race.tier }} &middot; {{ race.distance }}
+        </p>
+        <p v-if="isLocked" class="text-red-600 text-sm font-medium mt-1">
+          {{ $t('race.bettingClosed') }}
+        </p>
+        <p v-else class="text-green-600 text-sm font-medium mt-1">
+          {{ $t('race.bettingOpenUntil', { date: formatDate(lockDate) }) }}
+        </p>
       </div>
 
       <div v-if="!isLocked" class="mb-6">
         <div class="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
           <template v-if="startlistMissing[activeDivision]">{{
-            $t('race.startlistMissingDivision', { division: $t(activeDivision === 'FPRO' ? 'common.women' : 'common.men') })
+            $t('race.startlistMissingDivision', {
+              division: $t(activeDivision === 'FPRO' ? 'common.women' : 'common.men')
+            })
           }}</template>
-          <template v-else>{{ hasStartlist ? $t('race.startlistAvailable') : $t('race.startlistNote') }}</template>
+          <template v-else>{{
+            hasStartlist ? $t('race.startlistAvailable') : $t('race.startlistNote')
+          }}</template>
         </div>
         <div class="flex gap-2 mb-4">
-          <button @click="activeDivision = 'FPRO'"
-            :class="['btn-tab', activeDivision === 'FPRO' ? 'btn-tab-active' : 'btn-tab-inactive']">
+          <button
+            :class="['btn-tab', activeDivision === 'FPRO' ? 'btn-tab-active' : 'btn-tab-inactive']"
+            @click="activeDivision = 'FPRO'"
+          >
             {{ $t('common.women') }}
           </button>
-          <button @click="activeDivision = 'MPRO'"
-            :class="['btn-tab', activeDivision === 'MPRO' ? 'btn-tab-active' : 'btn-tab-inactive']">
+          <button
+            :class="['btn-tab', activeDivision === 'MPRO' ? 'btn-tab-active' : 'btn-tab-inactive']"
+            @click="activeDivision = 'MPRO'"
+          >
             {{ $t('common.men') }}
           </button>
         </div>
@@ -32,15 +46,24 @@
           <div v-for="pos in 5" :key="pos" class="flex items-center gap-3">
             <span class="font-bold text-gray-500 w-8">{{ pos }}.</span>
             <div class="relative flex-1">
-              <input type="text"
-                :placeholder="$t('race.searchPlaceholder')"
+              <input
                 v-model="searchQueries[activeDivision][pos]"
+                type="text"
+                :placeholder="$t('race.searchPlaceholder')"
+                class="input !mt-0"
                 @input="searchAthletes(activeDivision, pos)"
-                class="input !mt-0" />
-              <div v-if="searchResults[activeDivision][pos]?.length" @click.stop class="absolute left-0 top-full mt-1.5 z-10 w-full rounded-lg border border-gray-200 bg-white shadow-xl overflow-y-auto max-h-72">
-                <button v-for="a in searchResults[activeDivision][pos]" :key="a.id"
+              />
+              <div
+                v-if="searchResults[activeDivision][pos]?.length"
+                class="absolute left-0 top-full mt-1.5 z-10 w-full rounded-lg border border-gray-200 bg-white shadow-xl overflow-y-auto max-h-72"
+                @click.stop
+              >
+                <button
+                  v-for="a in searchResults[activeDivision][pos]"
+                  :key="a.id"
+                  class="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm hover:bg-indigo-50 border-b border-gray-100 last:border-0"
                   @click="selectAthlete(activeDivision, pos, a)"
-                  class="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm hover:bg-indigo-50 border-b border-gray-100 last:border-0">
+                >
                   <span class="text-base leading-none">{{ flag(a.country) }}</span>
                   <span class="flex-1 truncate">{{ a.full_name }}</span>
                   <span class="text-gray-400 text-xs">{{ a.country }}</span>
@@ -50,11 +73,21 @@
           </div>
         </div>
 
-        <div v-if="!startlistMissing[activeDivision] && placed" class="mt-4 flex items-center gap-4 text-sm">
+        <div
+          v-if="!startlistMissing[activeDivision] && placed"
+          class="mt-4 flex items-center gap-4 text-sm"
+        >
           <span class="text-green-600 font-medium">{{ $t('race.betSaved') }}</span>
-          <button @click="saveBet" class="text-indigo-600 font-medium hover:underline">{{ $t('race.update') }}</button>
+          <button class="text-indigo-600 font-medium hover:underline" @click="saveBet">
+            {{ $t('race.update') }}
+          </button>
         </div>
-        <button v-else-if="!startlistMissing[activeDivision]" @click="saveBet" :disabled="saving" class="btn btn-primary mt-4">
+        <button
+          v-else-if="!startlistMissing[activeDivision]"
+          :disabled="saving"
+          class="btn btn-primary mt-4"
+          @click="saveBet"
+        >
           {{ saving ? $t('race.saving') : $t('race.placeBet') }}
         </button>
         <p v-if="saveError" class="text-red-600 text-sm mt-2">{{ saveError }}</p>
@@ -63,17 +96,25 @@
       <section v-if="hasStartlist" class="mt-8">
         <h2 class="text-lg font-semibold mb-3">{{ $t('race.startlist') }}</h2>
         <div class="flex gap-2 mb-4">
-          <button @click="activeDivision = 'FPRO'"
-            :class="['btn-tab', activeDivision === 'FPRO' ? 'btn-tab-active' : 'btn-tab-inactive']">
+          <button
+            :class="['btn-tab', activeDivision === 'FPRO' ? 'btn-tab-active' : 'btn-tab-inactive']"
+            @click="activeDivision = 'FPRO'"
+          >
             {{ $t('common.women') }}
           </button>
-          <button @click="activeDivision = 'MPRO'"
-            :class="['btn-tab', activeDivision === 'MPRO' ? 'btn-tab-active' : 'btn-tab-inactive']">
+          <button
+            :class="['btn-tab', activeDivision === 'MPRO' ? 'btn-tab-active' : 'btn-tab-inactive']"
+            @click="activeDivision = 'MPRO'"
+          >
             {{ $t('common.men') }}
           </button>
         </div>
         <p v-if="startlistMissing[activeDivision]" class="text-sm text-gray-500">
-          {{ $t('race.startlistMissingDivision', { division: $t(activeDivision === 'FPRO' ? 'common.women' : 'common.men') }) }}
+          {{
+            $t('race.startlistMissingDivision', {
+              division: $t(activeDivision === 'FPRO' ? 'common.women' : 'common.men')
+            })
+          }}
         </p>
         <table v-else class="w-full bg-white rounded-lg shadow-sm border text-sm">
           <thead>
@@ -87,7 +128,9 @@
             <tr v-for="s in startlist[activeDivision]" :key="s.id" class="border-b last:border-0">
               <td class="p-3 font-bold">{{ s.bib }}</td>
               <td class="p-3">{{ s.athletes?.full_name }}</td>
-              <td class="p-3"><span class="text-base leading-none">{{ flag(s.athletes?.country) }}</span></td>
+              <td class="p-3">
+                <span class="text-base leading-none">{{ flag(s.athletes?.country) }}</span>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -96,12 +139,16 @@
       <section v-if="hasResults">
         <h2 class="text-lg font-semibold mb-3">{{ $t('race.results') }}</h2>
         <div class="flex gap-2 mb-4">
-          <button @click="activeDivision = 'FPRO'"
-            :class="['btn-tab', activeDivision === 'FPRO' ? 'btn-tab-active' : 'btn-tab-inactive']">
+          <button
+            :class="['btn-tab', activeDivision === 'FPRO' ? 'btn-tab-active' : 'btn-tab-inactive']"
+            @click="activeDivision = 'FPRO'"
+          >
             {{ $t('common.women') }}
           </button>
-          <button @click="activeDivision = 'MPRO'"
-            :class="['btn-tab', activeDivision === 'MPRO' ? 'btn-tab-active' : 'btn-tab-inactive']">
+          <button
+            :class="['btn-tab', activeDivision === 'MPRO' ? 'btn-tab-active' : 'btn-tab-inactive']"
+            @click="activeDivision = 'MPRO'"
+          >
             {{ $t('common.men') }}
           </button>
         </div>
@@ -118,7 +165,9 @@
             <tr v-for="r in results[activeDivision]" :key="r.id" class="border-b last:border-0">
               <td class="p-3 font-bold">{{ r.position }}</td>
               <td class="p-3">{{ r.athletes?.full_name }}</td>
-              <td class="p-3"><span class="text-base leading-none">{{ flag(r.athletes?.country) }}</span></td>
+              <td class="p-3">
+                <span class="text-base leading-none">{{ flag(r.athletes?.country) }}</span>
+              </td>
               <td class="p-3">{{ r.finish_time }}</td>
             </tr>
           </tbody>
@@ -128,8 +177,12 @@
       <section v-if="hasBets" class="mt-8">
         <h2 class="text-lg font-semibold mb-3">{{ $t('race.yourBets') }}</h2>
         <div class="flex gap-2 mb-4">
-          <button v-for="div in betDivisions" :key="div" @click="betDivision = div"
-            :class="['btn-tab', betDivision === div ? 'btn-tab-active' : 'btn-tab-inactive']">
+          <button
+            v-for="div in betDivisions"
+            :key="div"
+            :class="['btn-tab', betDivision === div ? 'btn-tab-active' : 'btn-tab-inactive']"
+            @click="betDivision = div"
+          >
             {{ div === 'FPRO' ? $t('common.women') : $t('common.men') }}
           </button>
         </div>
@@ -147,7 +200,9 @@
               <td class="p-3 font-bold">{{ b.predicted_position }}</td>
               <td class="p-3">
                 <span class="inline-flex items-center gap-2">
-                  <span v-if="b.athletes?.country" class="text-base leading-none">{{ flag(b.athletes.country) }}</span>
+                  <span v-if="b.athletes?.country" class="text-base leading-none">{{
+                    flag(b.athletes.country)
+                  }}</span>
                   {{ b.athletes?.full_name }}
                 </span>
               </td>
@@ -156,7 +211,10 @@
             </tr>
           </tbody>
         </table>
-        <p class="text-sm text-gray-500 mt-2">{{ $t('common.total') }}: <span class="font-semibold">{{ betTotal }} {{ $t('common.points') }}</span></p>
+        <p class="text-sm text-gray-500 mt-2">
+          {{ $t('common.total') }}:
+          <span class="font-semibold">{{ betTotal }} {{ $t('common.points') }}</span>
+        </p>
       </section>
     </div>
   </div>
@@ -223,11 +281,7 @@ function onDocumentClick() {
 
 onMounted(async () => {
   document.addEventListener('click', onDocumentClick)
-  const { data: r } = await supabase
-    .from('races')
-    .select('*')
-    .eq('id', route.params.id)
-    .single()
+  const { data: r } = await supabase.from('races').select('*').eq('id', route.params.id).single()
   race.value = r
 
   const { data: rrs } = await supabase
@@ -345,7 +399,7 @@ async function saveBet() {
         race_id: race.value.id,
         division: activeDivision.value,
         athlete_id: athlete.id,
-        predicted_position: pos,
+        predicted_position: pos
       })
     }
 

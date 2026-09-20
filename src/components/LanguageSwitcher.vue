@@ -1,5 +1,9 @@
 <template>
-  <div class="flex items-center rounded-full border border-gray-300 overflow-hidden text-xs font-semibold" role="group" :aria-label="$t('nav.language')">
+  <div
+    class="flex items-center rounded-full border border-gray-300 overflow-hidden text-xs font-semibold"
+    role="group"
+    :aria-label="$t('nav.language')"
+  >
     <button
       type="button"
       :class="btnClass('en')"

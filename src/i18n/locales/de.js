@@ -7,7 +7,7 @@ export default {
     signOut: 'Abmelden',
     openMenu: 'Menü öffnen',
     closeMenu: 'Menü schließen',
-    language: 'Sprache',
+    language: 'Sprache'
   },
   common: {
     loading: 'Wird geladen...',
@@ -20,7 +20,7 @@ export default {
     position: 'Pos',
     total: 'Gesamt',
     prediction: 'Tipp',
-    pred: 'Tipp',
+    pred: 'Tipp'
   },
   dashboard: {
     title: 'Übersicht',
@@ -30,7 +30,7 @@ export default {
     previousRaces: 'Vergangene Rennen',
     noPreviousRaces: 'Keine vergangenen Rennen.',
     upcomingRaces: 'Kommende Rennen',
-    noUpcomingRaces: 'Keine kommenden Rennen.',
+    noUpcomingRaces: 'Keine kommenden Rennen.'
   },
   bets: {
     title: 'Meine Tipps',
@@ -40,7 +40,7 @@ export default {
     count: '{count} Tipp | {count} Tipps',
     open: 'Tippen möglich',
     scored: 'Gewertet',
-    closed: 'Tippen geschlossen',
+    closed: 'Tippen geschlossen'
   },
   race: {
     notFound: 'Rennen nicht gefunden.',
@@ -60,19 +60,19 @@ export default {
     startlistMissingDivision:
       'Für dieses Event gibt es kein {division} Pro-Rennen bzw. keine Startliste — Wetten sind in dieser Division nicht möglich.',
     startlist: 'Startliste',
-    bib: 'Startnummer',
+    bib: 'Startnummer'
   },
   profile: {
     title: 'Profil',
     displayName: 'Anzeigename',
-    email: 'E-Mail',
+    email: 'E-Mail'
   },
   groups: {
     title: 'Gruppen',
     newGroup: 'Neue Gruppe',
     none: 'Noch keine Gruppen.',
     createOne: 'Eine erstellen',
-    created: 'Erstellt am {date}',
+    created: 'Erstellt am {date}'
   },
   groupDetail: {
     notFound: 'Gruppe nicht gefunden.',
@@ -85,14 +85,14 @@ export default {
     invite: 'Einladen',
     sending: 'Wird gesendet...',
     inviteSent: 'Einladung gesendet!',
-    inviteFailed: 'Einladung konnte nicht gesendet werden',
+    inviteFailed: 'Einladung konnte nicht gesendet werden'
   },
   login: {
     email: 'E-Mail',
     password: 'Passwort',
     signIn: 'Anmelden',
     noAccount: 'Noch kein Konto?',
-    signUp: 'Registrieren',
+    signUp: 'Registrieren'
   },
   signup: {
     title: 'Registrieren',
@@ -101,7 +101,7 @@ export default {
     password: 'Passwort',
     checkEmail: 'Prüfe deine E-Mail für den Bestätigungslink.',
     alreadyHaveAccount: 'Schon ein Konto?',
-    signIn: 'Anmelden',
+    signIn: 'Anmelden'
   },
   invite: {
     processing: 'Einladung wird verarbeitet...',
@@ -116,17 +116,17 @@ export default {
     joining: 'Tritt bei...',
     joinGroup: 'Gruppe beitreten',
     notFound: 'Einladung nicht gefunden oder bereits verwendet.',
-    aGroup: 'die Gruppe',
+    aGroup: 'die Gruppe'
   },
   createGroup: {
     title: 'Gruppe erstellen',
     groupName: 'Gruppenname',
-    create: 'Erstellen',
+    create: 'Erstellen'
   },
   leaderboard: {
     title: 'Globale Rangliste',
     description: 'Punkte über alle Rennen und Gruppen hinweg.',
     noBets: 'Noch keine Tipps abgegeben.',
-    betCount: '{count} Tipp | {count} Tipps',
-  },
+    betCount: '{count} Tipp | {count} Tipps'
+  }
 }

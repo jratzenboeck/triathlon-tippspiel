@@ -9,21 +9,51 @@
 
         <div class="flex items-center gap-4">
           <div v-if="auth.user" class="hidden sm:flex items-center gap-4 text-sm">
-            <router-link to="/groups" class="text-gray-600 hover:text-gray-900">{{ $t('nav.groups') }}</router-link>
-            <router-link to="/bets" class="text-gray-600 hover:text-gray-900">{{ $t('nav.myBets') }}</router-link>
-            <router-link to="/leaderboard" class="text-gray-600 hover:text-gray-900">{{ $t('nav.leaderboard') }}</router-link>
-            <router-link to="/profile" class="text-gray-600 hover:text-gray-900">{{ $t('nav.profile') }}</router-link>
-            <button @click="handleSignOut" class="text-gray-400 hover:text-gray-600">{{ $t('nav.signOut') }}</button>
+            <router-link to="/groups" class="text-gray-600 hover:text-gray-900">{{
+              $t('nav.groups')
+            }}</router-link>
+            <router-link to="/bets" class="text-gray-600 hover:text-gray-900">{{
+              $t('nav.myBets')
+            }}</router-link>
+            <router-link to="/leaderboard" class="text-gray-600 hover:text-gray-900">{{
+              $t('nav.leaderboard')
+            }}</router-link>
+            <router-link to="/profile" class="text-gray-600 hover:text-gray-900">{{
+              $t('nav.profile')
+            }}</router-link>
+            <button class="text-gray-400 hover:text-gray-600" @click="handleSignOut">
+              {{ $t('nav.signOut') }}
+            </button>
           </div>
 
           <LanguageSwitcher />
 
-          <button v-if="auth.user" @click="menuOpen = !menuOpen" class="sm:hidden p-2 -mr-2 text-gray-600 hover:text-gray-900"
-            :aria-label="menuOpen ? $t('nav.closeMenu') : $t('nav.openMenu')">
-            <svg v-if="!menuOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <button
+            v-if="auth.user"
+            class="sm:hidden p-2 -mr-2 text-gray-600 hover:text-gray-900"
+            :aria-label="menuOpen ? $t('nav.closeMenu') : $t('nav.openMenu')"
+            @click="menuOpen = !menuOpen"
+          >
+            <svg
+              v-if="!menuOpen"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
-            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -32,11 +62,33 @@
 
       <div v-if="menuOpen" class="sm:hidden border-t">
         <div class="max-w-5xl mx-auto px-4 py-2 flex flex-col text-sm">
-          <router-link to="/groups" @click="menuOpen = false" class="py-2.5 text-gray-600 hover:text-gray-900">{{ $t('nav.groups') }}</router-link>
-          <router-link to="/bets" @click="menuOpen = false" class="py-2.5 text-gray-600 hover:text-gray-900">{{ $t('nav.myBets') }}</router-link>
-          <router-link to="/leaderboard" @click="menuOpen = false" class="py-2.5 text-gray-600 hover:text-gray-900">{{ $t('nav.leaderboard') }}</router-link>
-          <router-link to="/profile" @click="menuOpen = false" class="py-2.5 text-gray-600 hover:text-gray-900">{{ $t('nav.profile') }}</router-link>
-          <button @click="handleSignOut" class="py-2.5 text-left text-gray-400 hover:text-gray-600">{{ $t('nav.signOut') }}</button>
+          <router-link
+            to="/groups"
+            class="py-2.5 text-gray-600 hover:text-gray-900"
+            @click="menuOpen = false"
+            >{{ $t('nav.groups') }}</router-link
+          >
+          <router-link
+            to="/bets"
+            class="py-2.5 text-gray-600 hover:text-gray-900"
+            @click="menuOpen = false"
+            >{{ $t('nav.myBets') }}</router-link
+          >
+          <router-link
+            to="/leaderboard"
+            class="py-2.5 text-gray-600 hover:text-gray-900"
+            @click="menuOpen = false"
+            >{{ $t('nav.leaderboard') }}</router-link
+          >
+          <router-link
+            to="/profile"
+            class="py-2.5 text-gray-600 hover:text-gray-900"
+            @click="menuOpen = false"
+            >{{ $t('nav.profile') }}</router-link
+          >
+          <button class="py-2.5 text-left text-gray-400 hover:text-gray-600" @click="handleSignOut">
+            {{ $t('nav.signOut') }}
+          </button>
         </div>
       </div>
     </nav>

@@ -7,7 +7,9 @@
     </div>
     <div v-else-if="joined" class="text-green-600">
       <p class="font-bold text-lg mb-2">{{ $t('invite.joined', { group: groupName }) }}</p>
-      <router-link :to="`/groups/${groupId}`" class="text-indigo-600 hover:underline">{{ $t('invite.goToGroup') }}</router-link>
+      <router-link :to="`/groups/${groupId}`" class="text-indigo-600 hover:underline">{{
+        $t('invite.goToGroup')
+      }}</router-link>
     </div>
     <div v-else>
       <p class="text-lg mb-4">{{ $t('invite.invitedTo', { group: groupName }) }}</p>
@@ -15,9 +17,11 @@
         <p class="text-sm text-gray-500 mb-4">{{ $t('invite.signUpSignIn') }}</p>
         <router-link to="/signup" class="btn btn-primary">{{ $t('invite.signUp') }}</router-link>
         <span class="mx-2 text-gray-400">{{ $t('invite.or') }}</span>
-        <router-link to="/login" class="text-indigo-600 hover:underline">{{ $t('invite.signIn') }}</router-link>
+        <router-link to="/login" class="text-indigo-600 hover:underline">{{
+          $t('invite.signIn')
+        }}</router-link>
       </div>
-      <button v-else @click="acceptInvite" :disabled="accepting" class="btn btn-primary">
+      <button v-else :disabled="accepting" class="btn btn-primary" @click="acceptInvite">
         {{ accepting ? $t('invite.joining') : $t('invite.joinGroup') }}
       </button>
     </div>
@@ -74,14 +78,16 @@ onMounted(async () => {
 async function acceptInvite() {
   accepting.value = true
   try {
-    const { data: { session } } = await supabase.auth.getSession()
+    const {
+      data: { session }
+    } = await supabase.auth.getSession()
     const res = await fetch('/.netlify/functions/accept-invite', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${session?.access_token}`,
+        Authorization: `Bearer ${session?.access_token}`
       },
-      body: JSON.stringify({ token: route.params.token }),
+      body: JSON.stringify({ token: route.params.token })
     })
     const data = await res.json()
     if (!res.ok) throw new Error(data.error)

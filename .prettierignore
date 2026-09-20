@@ -1,0 +1,9 @@
+dist
+node_modules
+.netlify
+supabase/.temp
+deno.lock
+package-lock.json
+supabase/migrations
+.env
+.env.example

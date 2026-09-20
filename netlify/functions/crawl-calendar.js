@@ -2,10 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import * as cheerio from 'cheerio'
 import { schedule } from '@netlify/functions'
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SECRET_KEY
-)
+const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY)
 
 async function crawl() {
   const res = await fetch('https://stats.protriathletes.org/pro-race-calendar')
@@ -42,8 +39,10 @@ async function crawl() {
       prize_money: $el.find('.col-prize').text().trim(),
       divisions: divisions.length ? divisions : null,
       results_url: href.includes('/results') ? `https://stats.protriathletes.org${href}` : null,
-      participants_url: href.includes('/participants') ? `https://stats.protriathletes.org${href}` : null,
-      crawled_at: new Date().toISOString(),
+      participants_url: href.includes('/participants')
+        ? `https://stats.protriathletes.org${href}`
+        : null,
+      crawled_at: new Date().toISOString()
     })
   })
 

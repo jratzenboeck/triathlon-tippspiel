@@ -8,15 +8,27 @@
     </div>
     <div v-if="loading" class="text-gray-500">{{ $t('common.loading') }}</div>
     <div v-else-if="groups.length === 0" class="text-gray-400">
-      {{ $t('groups.none') }} <router-link to="/groups/new" class="text-indigo-600">{{ $t('groups.createOne') }}</router-link>.
+      {{ $t('groups.none') }}
+      <router-link to="/groups/new" class="text-indigo-600">{{
+        $t('groups.createOne')
+      }}</router-link
+      >.
     </div>
-    <div v-for="group in groups" :key="group.id"
-      class="bg-white rounded-lg shadow-sm border p-4 mb-3 flex items-center justify-between">
+    <div
+      v-for="group in groups"
+      :key="group.id"
+      class="bg-white rounded-lg shadow-sm border p-4 mb-3 flex items-center justify-between"
+    >
       <div>
-        <router-link :to="`/groups/${group.id}`" class="font-medium text-indigo-600 hover:underline">
+        <router-link
+          :to="`/groups/${group.id}`"
+          class="font-medium text-indigo-600 hover:underline"
+        >
           {{ group.name }}
         </router-link>
-        <p class="text-sm text-gray-500">{{ $t('groups.created', { date: formatDate(group.created_at) }) }}</p>
+        <p class="text-sm text-gray-500">
+          {{ $t('groups.created', { date: formatDate(group.created_at) }) }}
+        </p>
       </div>
     </div>
   </div>

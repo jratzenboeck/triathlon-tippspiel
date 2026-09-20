@@ -2,10 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import * as cheerio from 'cheerio'
 import { schedule } from '@netlify/functions'
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SECRET_KEY
-)
+const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY)
 
 async function crawlRaceResults(race) {
   const year = race.date.slice(0, 4)
@@ -43,7 +40,7 @@ async function crawlRaceResults(race) {
         athlete_slug: athleteSlug,
         division,
         position,
-        finish_time: finishTime || null,
+        finish_time: finishTime || null
       })
     })
   })
@@ -97,11 +94,13 @@ async function crawlHandler() {
           athlete_id: athleteId,
           division: r.division,
           position: r.position,
-          finish_time: r.finish_time,
+          finish_time: r.finish_time
         })
       }
 
-      const { error } = await supabase.from('race_results').upsert(rows, { onConflict: 'race_id,athlete_id,division' })
+      const { error } = await supabase
+        .from('race_results')
+        .upsert(rows, { onConflict: 'race_id,athlete_id,division' })
       if (error) console.error(`  Upsert failed for ${race.slug}:`, error.message)
 
       await supabase

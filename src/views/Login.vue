@@ -4,7 +4,7 @@
       <AppLogo :size="64" />
       <h1 class="text-2xl font-bold mt-4">Triathlon Tippspiel</h1>
     </div>
-    <form @submit.prevent="handleLogin" class="space-y-4">
+    <form class="space-y-4" @submit.prevent="handleLogin">
       <div>
         <label class="block text-sm font-medium text-gray-700">{{ $t('login.email') }}</label>
         <input v-model="email" type="email" required class="input" />

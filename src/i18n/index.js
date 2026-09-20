@@ -10,7 +10,7 @@ export const i18n = createI18n({
   globalInjection: true,
   locale: stored || browser,
   fallbackLocale: 'en',
-  messages: { en, de },
+  messages: { en, de }
 })
 
 export function setLocale(locale) {

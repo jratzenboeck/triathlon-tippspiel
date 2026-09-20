@@ -1,9 +1,11 @@
 <template>
   <div class="max-w-md mx-auto mt-16">
     <h1 class="text-2xl font-bold mb-6">{{ $t('signup.title') }}</h1>
-    <form @submit.prevent="handleSignUp" class="space-y-4">
+    <form class="space-y-4" @submit.prevent="handleSignUp">
       <div>
-        <label class="block text-sm font-medium text-gray-700">{{ $t('signup.displayName') }}</label>
+        <label class="block text-sm font-medium text-gray-700">{{
+          $t('signup.displayName')
+        }}</label>
         <input v-model="displayName" type="text" required class="input" />
       </div>
       <div>

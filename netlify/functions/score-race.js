@@ -1,10 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { schedule } from '@netlify/functions'
 
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.SUPABASE_SECRET_KEY
-)
+const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY)
 
 async function scoreHandler() {
   try {
@@ -69,10 +66,7 @@ async function scoreHandler() {
           points = 1
         }
 
-        await supabase
-          .from('bets')
-          .update({ points })
-          .eq('id', bet.id)
+        await supabase.from('bets').update({ points }).eq('id', bet.id)
 
         totalUpdated++
       }

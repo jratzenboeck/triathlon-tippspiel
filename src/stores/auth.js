@@ -8,14 +8,12 @@ export const useAuthStore = defineStore('auth', () => {
   const loading = ref(true)
 
   async function fetchUser() {
-    const { data: { user: u } } = await supabase.auth.getUser()
+    const {
+      data: { user: u }
+    } = await supabase.auth.getUser()
     user.value = u
     if (u) {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', u.id)
-        .single()
+      const { data } = await supabase.from('profiles').select('*').eq('id', u.id).single()
       profile.value = data
     }
     loading.value = false
@@ -31,7 +29,7 @@ export const useAuthStore = defineStore('auth', () => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { display_name: displayName } },
+      options: { data: { display_name: displayName } }
     })
     if (!error && data?.user) {
       await fetchUser()
