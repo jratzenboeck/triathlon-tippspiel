@@ -86,11 +86,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/auth'
 
 const route = useRoute()
 const auth = useAuthStore()
+const { locale } = useI18n()
 
 const loading = ref(true)
 const group = ref(null)
@@ -177,7 +179,8 @@ async function handleInvite() {
       },
       body: JSON.stringify({
         groupId: group.value.id,
-        email: inviteEmail.value
+        email: inviteEmail.value,
+        locale: locale.value
       })
     })
     const data = await res.json()

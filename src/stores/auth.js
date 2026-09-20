@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { supabase } from '../lib/supabase'
+import { i18n } from '../i18n'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
@@ -29,7 +30,7 @@ export const useAuthStore = defineStore('auth', () => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { display_name: displayName } }
+      options: { data: { display_name: displayName, language: i18n.global.locale.value } }
     })
     if (!error && data?.user) {
       await fetchUser()

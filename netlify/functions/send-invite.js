@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import { buildEmail, EMAIL_MESSAGES } from './_email.js'
 
 const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY)
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -20,7 +21,8 @@ export async function handler(event) {
       return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) }
     }
 
-    const { groupId, email } = JSON.parse(event.body)
+    const { groupId, email, locale } = JSON.parse(event.body)
+    const copy = EMAIL_MESSAGES[locale === 'de' ? 'de' : 'en']
 
     const { data: membership } = await supabase
       .from('group_members')
@@ -49,16 +51,31 @@ export async function handler(event) {
     if (insertError) throw insertError
 
     const baseUrl = process.env.URL || 'http://localhost:8888'
+    const publicUrl = process.env.URL || 'https://triathlon-tippspiel.jratzenboeck.com'
     const from = `Triathlon Tippspiel <${process.env.SMTP_SENDER_EMAIL || 'noreply@jratzenboeck.com'}>`
+    const inviteUrl = `${baseUrl}/invite/${invite.token}`
+
+    const { data: inviter } = await supabase
+      .from('profiles')
+      .select('display_name')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    const group = invite.groups.name
+    const inviterName = inviter?.display_name || 'A friend'
 
     const { error: mailError } = await resend.emails.send({
       from,
       to: email,
-      subject: "You've been invited to join a group on Triathlon Tippspiel",
-      html: `
-        <p>You've been invited to join <strong>${invite.groups.name}</strong> on Triathlon Tippspiel!</p>
-        <p><a href="${baseUrl}/invite/${invite.token}">Click here to accept the invite</a></p>
-      `
+      subject: copy.subject(group),
+      html: buildEmail({
+        logoUrl: `${publicUrl}/logo.png`,
+        title: copy.title,
+        offer: copy.offer(inviterName, group),
+        ctaLabel: copy.cta,
+        ctaUrl: inviteUrl,
+        footer: copy.footer
+      })
     })
     if (mailError) throw new Error(`Sending email failed: ${mailError.message}`)
 
