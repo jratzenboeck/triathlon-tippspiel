@@ -49,9 +49,10 @@ export async function handler(event) {
     if (insertError) throw insertError
 
     const baseUrl = process.env.URL || 'http://localhost:8888'
+    const from = `Triathlon Tippspiel <${process.env.SMTP_SENDER_EMAIL || 'noreply@jratzenboeck.com'}>`
 
-    await resend.emails.send({
-      from: 'Triathlon Tippspiel <onboarding@resend.dev>',
+    const { error: mailError } = await resend.emails.send({
+      from,
       to: email,
       subject: "You've been invited to join a group on Triathlon Tippspiel",
       html: `
@@ -59,6 +60,7 @@ export async function handler(event) {
         <p><a href="${baseUrl}/invite/${invite.token}">Click here to accept the invite</a></p>
       `
     })
+    if (mailError) throw new Error(`Sending email failed: ${mailError.message}`)
 
     return {
       statusCode: 200,
