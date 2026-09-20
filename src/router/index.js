@@ -13,6 +13,16 @@ const routes = [
     component: () => import('../views/Login.vue')
   },
   {
+    path: '/forgot-password',
+    name: 'forgot-password',
+    component: () => import('../views/ForgotPassword.vue')
+  },
+  {
+    path: '/reset-password',
+    name: 'reset-password',
+    component: () => import('../views/ResetPassword.vue')
+  },
+  {
     path: '/signup',
     name: 'signup',
     component: () => import('../views/Signup.vue')
@@ -68,7 +78,7 @@ router.beforeEach(async (to) => {
   const {
     data: { user }
   } = await supabase.auth.getUser()
-  const publicPages = ['login', 'signup', 'invite']
+  const publicPages = ['login', 'signup', 'invite', 'forgot-password', 'reset-password']
   if (!user && !publicPages.includes(to.name)) {
     return { name: 'login' }
   }

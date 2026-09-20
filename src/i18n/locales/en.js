@@ -92,7 +92,27 @@ export default {
     password: 'Password',
     signIn: 'Sign in',
     noAccount: 'No account?',
-    signUp: 'Sign up'
+    signUp: 'Sign up',
+    forgotPassword: 'Forgot password?'
+  },
+  forgotPassword: {
+    title: 'Forgot password?',
+    description: 'Enter your email address and we will send you a link to reset your password.',
+    email: 'Email',
+    submit: 'Send reset link',
+    sent: 'If an account exists for that email address, a password reset link has been sent.',
+    backToLogin: 'Back to sign in'
+  },
+  resetPassword: {
+    title: 'Set a new password',
+    password: 'New password',
+    confirmPassword: 'Confirm new password',
+    submit: 'Update password',
+    mismatch: 'Passwords do not match.',
+    success: 'Your password has been updated. You can now sign in.',
+    error: 'This reset link is invalid or has expired.',
+    requestNew: 'Request a new link',
+    signIn: 'Sign in'
   },
   signup: {
     title: 'Sign up',

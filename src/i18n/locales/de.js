@@ -92,7 +92,27 @@ export default {
     password: 'Passwort',
     signIn: 'Anmelden',
     noAccount: 'Noch kein Konto?',
-    signUp: 'Registrieren'
+    signUp: 'Registrieren',
+    forgotPassword: 'Passwort vergessen?'
+  },
+  forgotPassword: {
+    title: 'Passwort vergessen?',
+    description: 'Gib deine E-Mail-Adresse ein und wir senden dir einen Link zum Zurücksetzen deines Passworts.',
+    email: 'E-Mail-Adresse',
+    submit: 'Link senden',
+    sent: 'Falls für diese E-Mail-Adresse ein Konto existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet.',
+    backToLogin: 'Zurück zur Anmeldung'
+  },
+  resetPassword: {
+    title: 'Neues Passwort festlegen',
+    password: 'Neues Passwort',
+    confirmPassword: 'Neues Passwort bestätigen',
+    submit: 'Passwort aktualisieren',
+    mismatch: 'Die Passwörter stimmen nicht überein.',
+    success: 'Dein Passwort wurde aktualisiert. Du kannst dich jetzt anmelden.',
+    error: 'Dieser Link ist ungültig oder abgelaufen.',
+    requestNew: 'Neuen Link anfordern',
+    signIn: 'Anmelden'
   },
   signup: {
     title: 'Registrieren',

@@ -38,11 +38,34 @@ export const useAuthStore = defineStore('auth', () => {
     return { error }
   }
 
+  async function resetPassword(email) {
+    const redirectTo = `${window.location.origin}/reset-password`
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo
+    })
+    return { error }
+  }
+
+  async function updatePassword(password) {
+    const { error } = await supabase.auth.updateUser({ password })
+    return { error }
+  }
+
   async function signOut() {
     await supabase.auth.signOut()
     user.value = null
     profile.value = null
   }
 
-  return { user, profile, loading, fetchUser, signIn, signUp, signOut }
+  return {
+    user,
+    profile,
+    loading,
+    fetchUser,
+    signIn,
+    signUp,
+    resetPassword,
+    updatePassword,
+    signOut
+  }
 })

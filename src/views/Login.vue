@@ -13,6 +13,11 @@
         <label class="block text-sm font-medium text-gray-700">{{ $t('login.password') }}</label>
         <input v-model="password" type="password" required class="input" />
       </div>
+      <div class="text-right">
+        <router-link to="/forgot-password" class="text-sm text-indigo-600">{{
+          $t('login.forgotPassword')
+        }}</router-link>
+      </div>
       <p v-if="error" class="text-red-600 text-sm">{{ error }}</p>
       <button type="submit" class="btn btn-primary w-full">
         {{ $t('login.signIn') }}
