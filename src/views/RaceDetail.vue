@@ -12,7 +12,10 @@
 
       <div v-if="!isLocked" class="mb-6">
         <div class="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
-          {{ $t('race.startlistNote') }}
+          <template v-if="startlistMissing[activeDivision]">{{
+            $t('race.startlistMissingDivision', { division: $t(activeDivision === 'FPRO' ? 'common.women' : 'common.men') })
+          }}</template>
+          <template v-else>{{ hasStartlist ? $t('race.startlistAvailable') : $t('race.startlistNote') }}</template>
         </div>
         <div class="flex gap-2 mb-4">
           <button @click="activeDivision = 'FPRO'"
@@ -25,7 +28,7 @@
           </button>
         </div>
 
-        <div class="space-y-3">
+        <div v-if="!startlistMissing[activeDivision]" class="space-y-3">
           <div v-for="pos in 5" :key="pos" class="flex items-center gap-3">
             <span class="font-bold text-gray-500 w-8">{{ pos }}.</span>
             <div class="relative flex-1">
@@ -47,15 +50,48 @@
           </div>
         </div>
 
-        <div v-if="placed" class="mt-4 flex items-center gap-4 text-sm">
+        <div v-if="!startlistMissing[activeDivision] && placed" class="mt-4 flex items-center gap-4 text-sm">
           <span class="text-green-600 font-medium">{{ $t('race.betSaved') }}</span>
           <button @click="saveBet" class="text-indigo-600 font-medium hover:underline">{{ $t('race.update') }}</button>
         </div>
-        <button v-else @click="saveBet" :disabled="saving" class="btn btn-primary mt-4">
+        <button v-else-if="!startlistMissing[activeDivision]" @click="saveBet" :disabled="saving" class="btn btn-primary mt-4">
           {{ saving ? $t('race.saving') : $t('race.placeBet') }}
         </button>
         <p v-if="saveError" class="text-red-600 text-sm mt-2">{{ saveError }}</p>
       </div>
+
+      <section v-if="hasStartlist" class="mt-8">
+        <h2 class="text-lg font-semibold mb-3">{{ $t('race.startlist') }}</h2>
+        <div class="flex gap-2 mb-4">
+          <button @click="activeDivision = 'FPRO'"
+            :class="['btn-tab', activeDivision === 'FPRO' ? 'btn-tab-active' : 'btn-tab-inactive']">
+            {{ $t('common.women') }}
+          </button>
+          <button @click="activeDivision = 'MPRO'"
+            :class="['btn-tab', activeDivision === 'MPRO' ? 'btn-tab-active' : 'btn-tab-inactive']">
+            {{ $t('common.men') }}
+          </button>
+        </div>
+        <p v-if="startlistMissing[activeDivision]" class="text-sm text-gray-500">
+          {{ $t('race.startlistMissingDivision', { division: $t(activeDivision === 'FPRO' ? 'common.women' : 'common.men') }) }}
+        </p>
+        <table v-else class="w-full bg-white rounded-lg shadow-sm border text-sm">
+          <thead>
+            <tr class="border-b text-left text-gray-500">
+              <th class="p-3">{{ $t('race.bib') }}</th>
+              <th class="p-3">{{ $t('common.athlete') }}</th>
+              <th class="p-3">{{ $t('common.country') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="s in startlist[activeDivision]" :key="s.id" class="border-b last:border-0">
+              <td class="p-3 font-bold">{{ s.bib }}</td>
+              <td class="p-3">{{ s.athletes?.full_name }}</td>
+              <td class="p-3"><span class="text-base leading-none">{{ flag(s.athletes?.country) }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
 
       <section v-if="hasResults">
         <h2 class="text-lg font-semibold mb-3">{{ $t('race.results') }}</h2>
@@ -150,6 +186,10 @@ const selections = ref({ FPRO: {}, MPRO: {} })
 const existingBets = ref({ FPRO: {}, MPRO: {} })
 const results = ref({ FPRO: [], MPRO: [] })
 const hasResults = ref(false)
+const hasStartlist = ref(false)
+const startlistAthleteIds = ref({ FPRO: [], MPRO: [] })
+const startlist = ref({ FPRO: [], MPRO: [] })
+const startlistMissing = ref({ FPRO: false, MPRO: false })
 const myBets = ref({ FPRO: [], MPRO: [] })
 const hasBets = ref(false)
 const betDivisions = ref([])
@@ -204,6 +244,22 @@ onMounted(async () => {
     }
   }
 
+  const { data: startlistData } = await supabase
+    .from('race_startlists')
+    .select('athlete_id, division, bib, athletes(*)')
+    .eq('race_id', route.params.id)
+  if (startlistData?.length) {
+    hasStartlist.value = true
+    for (const s of startlistData) {
+      startlistAthleteIds.value[s.division].push(s.athlete_id)
+      startlist.value[s.division].push(s)
+    }
+  }
+  for (const div of ['FPRO', 'MPRO']) {
+    startlist.value[div].sort((a, b) => parseInt(a.bib.slice(1), 10) - parseInt(b.bib.slice(1), 10))
+    startlistMissing.value[div] = hasStartlist.value && startlistAthleteIds.value[div].length === 0
+  }
+
   const { data: bets } = await supabase
     .from('bets')
     .select('*, athletes(*)')
@@ -240,17 +296,25 @@ onUnmounted(() => {
 })
 
 async function searchAthletes(division, pos) {
+  if (startlistMissing.value[division]) {
+    searchResults.value[division][pos] = []
+    return
+  }
   const q = searchQueries.value[division][pos]
   if (!q || q.length < 2) {
     searchResults.value[division][pos] = []
     return
   }
-  const { data } = await supabase
+  const ids = startlistAthleteIds.value[division]
+  let query = supabase
     .from('athletes')
     .select('id, full_name, slug, country')
     .ilike('full_name', `%${q}%`)
     .eq('division', division)
-    .limit(10)
+  if (ids.length > 0) {
+    query = query.in('id', ids)
+  }
+  const { data } = await query.limit(10)
   searchResults.value[division][pos] = data || []
 }
 

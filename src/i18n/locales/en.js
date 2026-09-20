@@ -56,6 +56,11 @@ export default {
     yourBets: 'Your bets',
     startlistNote:
       'Startlists are not crawled yet. Please pick athletes who are actually on the startlist — the search shows all athletes in the PTO rankings.',
+    startlistAvailable: 'Only athletes on the official start list can be picked.',
+    startlistMissingDivision:
+      'There is no {division} pro race / start list for this event — betting in this division is not possible.',
+    startlist: 'Start list',
+    bib: 'Bib',
   },
   profile: {
     title: 'Profile',

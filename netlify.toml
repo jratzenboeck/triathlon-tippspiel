@@ -5,6 +5,9 @@
 [functions]
   directory = "netlify/functions"
 
+[functions.crawl-startlists]
+  timeout = 60
+
 [dev]
   command = "npm run dev"
   publish = "dist"

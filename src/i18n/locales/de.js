@@ -56,6 +56,11 @@ export default {
     yourBets: 'Deine Tipps',
     startlistNote:
       'Startlisten sind noch nicht eingespielt. Bitte wähle Athlet:innen, die tatsächlich auf der Startliste stehen — die Suche zeigt alle Athlet:innen im PTO-Ranking.',
+    startlistAvailable: 'Es können nur Athlet:innen der offiziellen Startliste gewählt werden.',
+    startlistMissingDivision:
+      'Für dieses Event gibt es kein {division} Pro-Rennen bzw. keine Startliste — Wetten sind in dieser Division nicht möglich.',
+    startlist: 'Startliste',
+    bib: 'Startnummer',
   },
   profile: {
     title: 'Profil',
