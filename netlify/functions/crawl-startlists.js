@@ -6,6 +6,7 @@ import { extractTextItems } from 'unpdf'
 const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SECRET_KEY)
 
 const IRONMAN_PAGE = 'https://www.ironman.com/community/pro-athletes'
+const PTO_BASE = 'https://stats.protriathletes.org'
 const UA =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
 
@@ -197,7 +198,9 @@ function slugify(str) {
 
 function countryCode(name) {
   if (!name) return null
-  return COUNTRY_CODES[norm(name)] || null
+  const n = norm(name)
+  if (/^[a-z]{2}$/.test(n)) return n.toUpperCase()
+  return COUNTRY_CODES[n] || null
 }
 
 function cleanLabel(label) {
@@ -241,6 +244,47 @@ function getStartListLinks(html) {
       })
     })
   return links
+}
+
+function splitFullName(fullName) {
+  const name = (fullName || '').trim()
+  const idx = name.lastIndexOf(' ')
+  if (idx <= 0) return { first_name: name, last_name: '' }
+  return { first_name: name.slice(0, idx), last_name: name.slice(idx + 1) }
+}
+
+// T100 start lists are published on the PTO stats site as server-rendered HTML:
+// one tab pane per division ("#FPRO-participants", "#MPRO-participants"), each with a
+// "race-participants--start-list" table when a confirmed start list exists.
+function parseT100StartList(html) {
+  const $ = cheerio.load(html)
+  const rows = []
+  $('a.nav-link[role=tab]').each((_, el) => {
+    const id = $(el).attr('id') || ''
+    const m = id.match(/^([A-Z]+)-participants-tab$/)
+    if (!m) return
+    const division = m[1]
+    const href = $(el).attr('href')
+    const pane = $(href)
+    if (!pane.length) return
+    const table = pane.find('table.race-participants--start-list')
+    if (!table.length) return
+    table.find('tbody tr').each((_, tr) => {
+      if ($(tr).is('.wildcard-placeholder')) return
+      const a = $(tr).find('a.headline')
+      const slug = (a.attr('href') || '').replace(/^\/athlete\//, '')
+      if (!slug || !a.length) return
+      const fullName = $(tr).find('span.hide-mobile').first().text().trim() || a.text().trim()
+      const flag = ($(tr).find('.flag-icon').attr('class') || '').match(/flag-icon-([a-z]{2})/)
+      rows.push({
+        division,
+        slug,
+        fullName,
+        country: flag ? flag[1].toUpperCase() : null
+      })
+    })
+  })
+  return rows
 }
 
 async function parseStartListPdf(buffer) {
@@ -352,6 +396,64 @@ async function crawlHandler() {
       log.push(`${race.name}: matched ${link.label} (${rows.length} athletes)`)
     }
 
+    const { data: t100Races } = await supabase
+      .from('races')
+      .select('id, name, slug, date')
+      .ilike('name', '%t100%')
+    for (const race of t100Races || []) {
+      const year = String(race.date || '').slice(0, 4)
+      if (!/^\d{4}$/.test(year)) {
+        log.push(`${race.name}: no year, skipping T100 crawl`)
+        continue
+      }
+      const url = `${PTO_BASE}/race/${race.slug}/${year}/participants`
+      const participantsRes = await fetch(url, { headers: { 'user-agent': UA } })
+      if (participantsRes.status === 404) {
+        log.push(`${race.name}: no T100 participants page yet`)
+        continue
+      }
+      if (!participantsRes.ok) {
+        log.push(`T100 fetch failed ${participantsRes.status}: ${race.name}`)
+        continue
+      }
+      const rows = parseT100StartList(await participantsRes.text())
+      if (!rows.length) {
+        log.push(`${race.name}: no published T100 start list`)
+        continue
+      }
+
+      const entries = []
+      for (const row of rows) {
+        const { first_name, last_name } = splitFullName(row.fullName)
+        const fullName = row.fullName
+        const key = norm(fullName)
+
+        const athlete = bySlug.get(row.slug) || byName.get(key) || bySlug.get(slugify(fullName))
+
+        if (!athlete) {
+          const slug = slugify(fullName)
+          if (!toCreate.has(slug))
+            toCreate.set(slug, {
+              division: row.division,
+              slug,
+              first_name,
+              last_name,
+              full_name: fullName,
+              country: row.country
+            })
+        }
+        entries.push({
+          raceId: race.id,
+          row: { division: row.division, bib: null, first_name, last_name, country: row.country },
+          key,
+          fullName,
+          athlete
+        })
+      }
+      raceEntries.push({ race, entries })
+      log.push(`${race.name}: crawled T100 start list (${rows.length} athletes)`)
+    }
+
     if (toCreate.size > 0) {
       const fresh = []
       for (const row of toCreate.values()) {
@@ -381,11 +483,16 @@ async function crawlHandler() {
     const recordsByRace = new Map()
     for (const { race, entries } of raceEntries) {
       const records = entries
-        .map(({ raceId, row, key }) => {
+        .map((entry) => {
+          const { raceId, row, key } = entry
           const athlete =
-            byName.get(key) || bySlug.get(slugify(row.first_name + ' ' + row.last_name))
+            entry.athlete ||
+            byName.get(key) ||
+            bySlug.get(slugify(row.first_name + ' ' + row.last_name))
           if (!athlete) {
-            log.push(`$unmatched: ${row.division} ${row.bib} ${row.first_name} ${row.last_name}`)
+            log.push(
+              `$unmatched: ${row.division} ${row.bib || ''} ${row.first_name} ${row.last_name}`
+            )
             return null
           }
           return {
@@ -420,3 +527,4 @@ async function crawlHandler() {
 }
 
 export const handler = schedule('0 6 * * *', crawlHandler)
+export { crawlHandler }

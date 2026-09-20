@@ -126,7 +126,7 @@
           </thead>
           <tbody>
             <tr v-for="s in startlist[activeDivision]" :key="s.id" class="border-b last:border-0">
-              <td class="p-3 font-bold">{{ s.bib }}</td>
+              <td class="p-3 font-bold">{{ s.bib || '–' }}</td>
               <td class="p-3">{{ s.athletes?.full_name }}</td>
               <td class="p-3">
                 <span class="text-base leading-none">{{ flag(s.athletes?.country) }}</span>
@@ -309,8 +309,9 @@ onMounted(async () => {
       startlist.value[s.division].push(s)
     }
   }
+  const bibNum = (s) => (s.bib ? parseInt(s.bib.slice(1), 10) : Number.POSITIVE_INFINITY)
   for (const div of ['FPRO', 'MPRO']) {
-    startlist.value[div].sort((a, b) => parseInt(a.bib.slice(1), 10) - parseInt(b.bib.slice(1), 10))
+    startlist.value[div].sort((a, b) => bibNum(a) - bibNum(b))
     startlistMissing.value[div] = hasStartlist.value && startlistAthleteIds.value[div].length === 0
   }
 
