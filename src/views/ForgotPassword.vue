@@ -6,7 +6,6 @@
     </div>
     <p class="mb-4 text-sm text-gray-500">{{ $t('forgotPassword.description') }}</p>
     <form class="space-y-4" @submit.prevent="handleReset">
-      <HoneypotField v-model="honeypot" />
       <div>
         <label class="block text-sm font-medium text-gray-700">{{
           $t('forgotPassword.email')
@@ -29,12 +28,10 @@
 import { ref } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import AppLogo from '../components/AppLogo.vue'
-import HoneypotField from '../components/HoneypotField.vue'
 
 const auth = useAuthStore()
 
 const email = ref('')
-const honeypot = ref('')
 const error = ref('')
 const sent = ref(false)
 const sending = ref(false)
@@ -42,7 +39,6 @@ const sending = ref(false)
 async function handleReset() {
   error.value = ''
   sent.value = false
-  if (honeypot.value) return
   sending.value = true
   const { error: err } = await auth.resetPassword(email.value)
   sending.value = false

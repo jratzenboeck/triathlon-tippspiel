@@ -2,7 +2,6 @@
   <div class="max-w-md mx-auto mt-16">
     <h1 class="text-2xl font-bold mb-6">{{ $t('signup.title') }}</h1>
     <form class="space-y-4" @submit.prevent="handleSignUp">
-      <HoneypotField v-model="honeypot" />
       <div>
         <label class="block text-sm font-medium text-gray-700">{{
           $t('signup.displayName')
@@ -33,21 +32,18 @@
 <script setup>
 import { ref } from 'vue'
 import { useAuthStore } from '../stores/auth'
-import HoneypotField from '../components/HoneypotField.vue'
 
 const auth = useAuthStore()
 
 const displayName = ref('')
 const email = ref('')
 const password = ref('')
-const honeypot = ref('')
 const error = ref('')
 const success = ref(false)
 
 async function handleSignUp() {
   error.value = ''
   success.value = false
-  if (honeypot.value) return
   const { error: err } = await auth.signUp(email.value, password.value, displayName.value)
   if (err) {
     error.value = err.message
