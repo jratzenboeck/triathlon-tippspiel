@@ -17,7 +17,9 @@ export default [
       'vite.config.js',
       'tailwind.config.js',
       'postcss.config.js',
-      'eslint.config.js'
+      'eslint.config.js',
+      'playwright.config.js',
+      'tests/e2e/**/*.js'
     ],
     languageOptions: {
       globals: globals.node
