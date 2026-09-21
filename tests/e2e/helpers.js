@@ -1,6 +1,26 @@
-const SUPABASE_URL = 'http://127.0.0.1:54321'
-export const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH'
-export const SUPABASE_SECRET_KEY = 'your-local-supabase-secret-key'
+import { readFileSync } from 'node:fs'
+
+function loadEnv() {
+  return readFileSync(new URL('../../.env', import.meta.url), 'utf8')
+    .split('\n')
+    .reduce((vars, line) => {
+      const match = line.match(/^([A-Z0-9_]+)=(.*)$/)
+      if (match) vars[match[1]] = match[2].replace(/^['"]|['"]$/g, '')
+      return vars
+    }, {})
+}
+
+const env = loadEnv()
+
+export const SUPABASE_URL = env.VITE_SUPABASE_URL ?? 'http://127.0.0.1:54321'
+export const SUPABASE_PUBLISHABLE_KEY = env.VITE_SUPABASE_PUBLISHABLE_KEY
+export const SUPABASE_SECRET_KEY = env.SUPABASE_SECRET_KEY
+
+if (!SUPABASE_SECRET_KEY) {
+  throw new Error(
+    'tests/e2e/helpers.js: missing SUPABASE_SECRET_KEY — copy .env.example to .env first'
+  )
+}
 
 export const users = {
   alice: { email: 'alice@example.com', password: 'password123', displayName: 'Alice' },
