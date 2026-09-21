@@ -65,3 +65,26 @@ export async function getInviteToken() {
   const rows = await res.json()
   return rows[0]?.token
 }
+
+const TEST_GROUP_ID = '20000000-0000-0000-0000-000000000001'
+const ALICE_USER_ID = '10000000-0000-0000-0000-000000000001'
+
+export async function createLinkInvite() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/invites`, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_SECRET_KEY,
+      Authorization: `Bearer ${SUPABASE_SECRET_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=representation'
+    },
+    body: JSON.stringify({
+      group_id: TEST_GROUP_ID,
+      invited_by: ALICE_USER_ID,
+      email: null
+    })
+  })
+  if (!res.ok) throw new Error(`createLinkInvite failed with status ${res.status}`)
+  const rows = await res.json()
+  return rows[0]?.token
+}

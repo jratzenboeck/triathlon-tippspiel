@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { createUser, getInviteToken, loginViaUI, users } from './helpers'
+import { createUser, createLinkInvite, getInviteToken, loginViaUI, users } from './helpers'
 
 const INVALID_TOKEN = 'not-a-real-token'
 
@@ -42,5 +42,23 @@ test.describe('invite page', () => {
 
     await page.waitForURL(`/invite/${token}`)
     await expect(page.getByRole('button', { name: 'Join group' })).toBeVisible()
+  })
+
+  test('shows a link invite (no email) to a logged-out visitor', async ({ page }) => {
+    const token = await createLinkInvite()
+    await page.goto(`/invite/${token}`)
+
+    await expect(page.getByText(/You've been invited to join/)).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Sign up' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible()
+  })
+
+  test('shows the joined state to an existing member on a link invite', async ({ page }) => {
+    const token = await createLinkInvite()
+    await loginViaUI(page, users.alice.email, users.alice.password)
+    await page.goto(`/invite/${token}`)
+
+    await expect(page.getByText('You joined Test Group!')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Go to group' })).toBeVisible()
   })
 })

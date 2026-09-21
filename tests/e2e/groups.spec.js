@@ -66,4 +66,18 @@ test.describe('groups', () => {
     await expect(page.locator('input[placeholder="Email address"]')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Invite' })).toBeVisible()
   })
+
+  test('shows the share link generator to the admin but not to members', async ({ page }) => {
+    await loginViaUI(page, users.alice.email, users.alice.password)
+    await page.goto(`/groups/${TEST_GROUP_ID}`)
+
+    await expect(page.getByRole('button', { name: 'Generate link' })).toBeVisible()
+  })
+
+  test('hides the share link generator from regular members', async ({ page }) => {
+    await loginViaUI(page, users.bob.email, users.bob.password)
+    await page.goto(`/groups/${TEST_GROUP_ID}`)
+
+    await expect(page.getByRole('button', { name: 'Generate link' })).toHaveCount(0)
+  })
 })

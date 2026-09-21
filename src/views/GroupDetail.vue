@@ -77,6 +77,47 @@
         >
           {{ inviteMsg }}
         </p>
+
+        <div class="mt-5 border-t pt-4">
+          <h3 class="text-sm font-semibold mb-1">{{ $t('groupDetail.shareLink') }}</h3>
+          <p class="text-xs text-gray-500 mb-3">{{ $t('groupDetail.shareLinkHint') }}</p>
+          <button
+            v-if="!shareUrl"
+            :disabled="generatingLink"
+            class="btn btn-tab-inactive"
+            @click="generateShareLink"
+          >
+            {{ generatingLink ? $t('groupDetail.generating') : $t('groupDetail.generateLink') }}
+          </button>
+          <div v-else class="flex flex-col gap-2">
+            <div class="flex gap-2">
+              <input :value="shareUrl" readonly class="input flex-1 !mt-0" />
+              <button class="btn btn-primary" @click="copyShareLink">
+                {{ copied ? $t('groupDetail.copied') : $t('groupDetail.copy') }}
+              </button>
+            </div>
+            <div class="flex gap-2">
+              <a
+                :href="whatsAppShareUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-tab-inactive"
+              >
+                {{ $t('groupDetail.shareOnWhatsApp') }}
+              </a>
+              <button class="btn btn-tab-inactive" @click="shareUrl = ''">
+                {{ $t('groupDetail.newLink') }}
+              </button>
+            </div>
+          </div>
+          <p
+            v-if="shareMsg"
+            class="mt-2 text-sm"
+            :class="shareError ? 'text-red-600' : 'text-green-600'"
+          >
+            {{ shareMsg }}
+          </p>
+        </div>
       </section>
       <p v-else class="text-sm text-gray-500">Only group admins can invite members.</p>
     </div>
@@ -84,7 +125,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { supabase } from '../lib/supabase'
@@ -105,6 +146,20 @@ const inviteEmail = ref('')
 const sending = ref(false)
 const inviteMsg = ref('')
 const inviteError = ref(false)
+const shareUrl = ref('')
+const generatingLink = ref(false)
+const copied = ref(false)
+const shareMsg = ref('')
+const shareError = ref(false)
+
+const whatsAppShareUrl = computed(() => {
+  if (!shareUrl.value) return ''
+  const text =
+    locale.value === 'de'
+      ? `Tritt meiner Gruppe im Triathlon Tippspiel bei: ${shareUrl.value}`
+      : `Join my group on Triathlon Tippspiel: ${shareUrl.value}`
+  return `https://wa.me/?text=${encodeURIComponent(text)}`
+})
 
 onMounted(async () => {
   const { data: g } = await supabase.from('groups').select('*').eq('id', route.params.id).single()
@@ -192,6 +247,43 @@ async function handleInvite() {
     inviteMsg.value = e.message
   } finally {
     sending.value = false
+  }
+}
+
+async function generateShareLink() {
+  generatingLink.value = true
+  shareMsg.value = ''
+  shareError.value = false
+  try {
+    const {
+      data: { session }
+    } = await supabase.auth.getSession()
+    const res = await fetch('/.netlify/functions/create-invite-link', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session?.access_token}`
+      },
+      body: JSON.stringify({ groupId: group.value.id })
+    })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error || 'Failed to generate invite link')
+    shareUrl.value = data.url
+    copied.value = false
+  } catch (e) {
+    shareError.value = true
+    shareMsg.value = e.message
+  } finally {
+    generatingLink.value = false
+  }
+}
+
+async function copyShareLink() {
+  try {
+    await navigator.clipboard.writeText(shareUrl.value)
+    copied.value = true
+  } catch {
+    copied.value = false
   }
 }
 </script>

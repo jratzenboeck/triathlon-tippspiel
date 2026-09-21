@@ -85,7 +85,16 @@ export default {
     invite: 'Einladen',
     sending: 'Wird gesendet...',
     inviteSent: 'Einladung gesendet!',
-    inviteFailed: 'Einladung konnte nicht gesendet werden'
+    inviteFailed: 'Einladung konnte nicht gesendet werden',
+    shareLink: 'Link teilen',
+    shareLinkHint:
+      'Erstelle einen Link für eine Person und versende ihn selbst (z. B. via WhatsApp).',
+    generateLink: 'Link erstellen',
+    generating: 'Wird erstellt...',
+    copy: 'Kopieren',
+    copied: 'Kopiert!',
+    shareOnWhatsApp: 'Via WhatsApp teilen',
+    newLink: 'Neuer Link'
   },
   login: {
     email: 'E-Mail',
@@ -97,7 +106,8 @@ export default {
   },
   forgotPassword: {
     title: 'Passwort vergessen?',
-    description: 'Gib deine E-Mail-Adresse ein und wir senden dir einen Link zum Zurücksetzen deines Passworts.',
+    description:
+      'Gib deine E-Mail-Adresse ein und wir senden dir einen Link zum Zurücksetzen deines Passworts.',
     email: 'E-Mail-Adresse',
     submit: 'Link senden',
     sent: 'Falls für diese E-Mail-Adresse ein Konto existiert, wurde ein Link zum Zurücksetzen des Passworts gesendet.',

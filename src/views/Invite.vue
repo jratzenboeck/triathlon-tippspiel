@@ -34,7 +34,7 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/auth'
-import { storeInviteToken, popInviteToken } from '../lib/pending-invite'
+import { storeInviteToken, getInviteToken, popInviteToken } from '../lib/pending-invite'
 
 const route = useRoute()
 const auth = useAuthStore()
@@ -51,9 +51,10 @@ onMounted(async () => {
     .from('invites')
     .select('*, groups(name)')
     .eq('token', route.params.token)
-    .single()
+    .maybeSingle()
 
-  if (inviteErr || !invite || invite.used) {
+  if (inviteErr || !invite) {
+    if (getInviteToken() === route.params.token) popInviteToken()
     error.value = inviteErr?.message || t('invite.notFound')
     loading.value = false
     return
@@ -61,8 +62,6 @@ onMounted(async () => {
 
   groupId.value = invite.group_id
   groupName.value = invite.groups?.name || t('invite.aGroup')
-
-  if (!auth.user) storeInviteToken(route.params.token)
 
   if (auth.user) {
     const { data: existing } = await supabase
@@ -73,8 +72,19 @@ onMounted(async () => {
     if (existing?.length) {
       joined.value = true
       popInviteToken()
+      loading.value = false
+      return
     }
   }
+
+  if (invite.used) {
+    if (getInviteToken() === route.params.token) popInviteToken()
+    error.value = t('invite.notFound')
+    loading.value = false
+    return
+  }
+
+  if (!auth.user) storeInviteToken(route.params.token)
 
   loading.value = false
 })

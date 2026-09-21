@@ -85,7 +85,15 @@ export default {
     invite: 'Invite',
     sending: 'Sending...',
     inviteSent: 'Invite sent!',
-    inviteFailed: 'Failed to send invite'
+    inviteFailed: 'Failed to send invite',
+    shareLink: 'Share link',
+    shareLinkHint: 'Create a link for one person and send it to them yourself (e.g. via WhatsApp).',
+    generateLink: 'Generate link',
+    generating: 'Generating...',
+    copy: 'Copy',
+    copied: 'Copied!',
+    shareOnWhatsApp: 'Share via WhatsApp',
+    newLink: 'New link'
   },
   login: {
     email: 'Email',

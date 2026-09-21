@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { supabase } from '../lib/supabase'
+import { getInviteToken } from '../lib/pending-invite'
 
 const routes = [
   {
@@ -81,6 +82,10 @@ router.beforeEach(async (to) => {
   const publicPages = ['login', 'signup', 'invite', 'forgot-password', 'reset-password']
   if (!user && !publicPages.includes(to.name)) {
     return { name: 'login' }
+  }
+  const pendingToken = getInviteToken()
+  if (user && pendingToken && to.name !== 'invite') {
+    return { path: `/invite/${pendingToken}` }
   }
 })
 
