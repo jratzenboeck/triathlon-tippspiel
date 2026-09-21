@@ -136,7 +136,7 @@
         </table>
       </section>
 
-      <section v-if="hasResults">
+      <section v-if="hasResults" class="mt-8">
         <h2 class="text-lg font-semibold mb-3">{{ $t('race.results') }}</h2>
         <div class="flex gap-2 mb-4">
           <button
