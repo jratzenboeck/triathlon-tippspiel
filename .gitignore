@@ -7,4 +7,3 @@ dist/
 deno.lock
 test-results/
 playwright-report/
-.env.production
