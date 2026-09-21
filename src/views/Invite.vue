@@ -34,6 +34,7 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/auth'
+import { storeInviteToken, popInviteToken } from '../lib/pending-invite'
 
 const route = useRoute()
 const auth = useAuthStore()
@@ -61,6 +62,8 @@ onMounted(async () => {
   groupId.value = invite.group_id
   groupName.value = invite.groups?.name || t('invite.aGroup')
 
+  if (!auth.user) storeInviteToken(route.params.token)
+
   if (auth.user) {
     const { data: existing } = await supabase
       .from('group_members')
@@ -69,6 +72,7 @@ onMounted(async () => {
       .eq('user_id', auth.user.id)
     if (existing?.length) {
       joined.value = true
+      popInviteToken()
     }
   }
 
@@ -92,6 +96,7 @@ async function acceptInvite() {
     const data = await res.json()
     if (!res.ok) throw new Error(data.error)
     joined.value = true
+    popInviteToken()
   } catch (e) {
     error.value = e.message
   } finally {

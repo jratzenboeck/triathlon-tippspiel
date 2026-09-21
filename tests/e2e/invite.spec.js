@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { getInviteToken, loginViaUI, users } from './helpers'
+import { createUser, getInviteToken, loginViaUI, users } from './helpers'
 
 const INVALID_TOKEN = 'not-a-real-token'
 
@@ -26,5 +26,21 @@ test.describe('invite page', () => {
     await page.goto(`/invite/${INVALID_TOKEN}`)
 
     await expect(page.getByText('Invalid or expired invite')).toBeVisible()
+  })
+
+  test('returns a signed-up visitor to the invite so they can join', async ({ page }) => {
+    const token = await getInviteToken()
+    await page.goto(`/invite/${token}`)
+    await expect(page.getByRole('link', { name: 'Sign up' })).toBeVisible()
+
+    const email = `invitee-${Date.now()}@example.com`
+    await createUser({ email, password: 'password123', displayName: 'Newbie' })
+    await page.goto('/login')
+    await page.fill('input[type="email"]', email)
+    await page.fill('input[type="password"]', 'password123')
+    await page.click('button[type="submit"]')
+
+    await page.waitForURL(`/invite/${token}`)
+    await expect(page.getByRole('button', { name: 'Join group' })).toBeVisible()
   })
 })
