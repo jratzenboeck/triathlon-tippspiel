@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gray-50 flex flex-col">
     <nav class="bg-white shadow-sm border-b">
       <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
         <router-link to="/" class="flex items-center gap-2 font-bold text-lg text-indigo-600">
@@ -92,9 +92,12 @@
         </div>
       </div>
     </nav>
-    <main class="max-w-5xl mx-auto px-4 py-6">
+    <main class="max-w-5xl mx-auto px-4 py-6 flex-1 w-full">
       <slot />
     </main>
+    <footer class="border-t bg-white py-4 text-center text-sm text-gray-500">
+      © {{ currentYear }} Jürgen Ratzenböck
+    </footer>
   </div>
 </template>
 
@@ -109,6 +112,7 @@ import LanguageSwitcher from './LanguageSwitcher.vue'
 const auth = useAuthStore()
 const router = useRouter()
 const menuOpen = ref(false)
+const currentYear = new Date().getFullYear()
 
 onMounted(() => {
   auth.fetchUser()
