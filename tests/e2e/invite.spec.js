@@ -48,7 +48,7 @@ test.describe('invite page', () => {
     const token = await createLinkInvite()
     await page.goto(`/invite/${token}`)
 
-    await expect(page.getByText(/You've been invited to join/)).toBeVisible()
+    await expect(page.getByText(/You've been invited to join Test Group/)).toBeVisible()
     await expect(page.getByRole('link', { name: 'Sign up' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible()
   })

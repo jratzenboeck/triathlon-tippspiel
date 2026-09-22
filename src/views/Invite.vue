@@ -47,11 +47,10 @@ const joined = ref(false)
 const accepting = ref(false)
 
 onMounted(async () => {
-  const { data: invite, error: inviteErr } = await supabase
-    .from('invites')
-    .select('*, groups(name)')
-    .eq('token', route.params.token)
-    .maybeSingle()
+  const { data, error: inviteErr } = await supabase.rpc('fetch_invite', {
+    invite_token: route.params.token
+  })
+  const invite = Array.isArray(data) ? data[0] : data
 
   if (inviteErr || !invite) {
     if (getInviteToken() === route.params.token) popInviteToken()
@@ -61,7 +60,7 @@ onMounted(async () => {
   }
 
   groupId.value = invite.group_id
-  groupName.value = invite.groups?.name || t('invite.aGroup')
+  groupName.value = invite.group_name || t('invite.aGroup')
 
   if (auth.user) {
     const { data: existing } = await supabase
