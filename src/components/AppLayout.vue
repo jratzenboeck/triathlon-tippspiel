@@ -9,6 +9,9 @@
 
         <div class="flex items-center gap-4">
           <div v-if="auth.user" class="hidden sm:flex items-center gap-4 text-sm">
+            <router-link to="/" class="text-gray-600 hover:text-gray-900">{{
+              $t('nav.races')
+            }}</router-link>
             <router-link to="/groups" class="text-gray-600 hover:text-gray-900">{{
               $t('nav.groups')
             }}</router-link>
@@ -62,6 +65,12 @@
 
       <div v-if="menuOpen" class="sm:hidden border-t">
         <div class="max-w-5xl mx-auto px-4 py-2 flex flex-col text-sm">
+          <router-link
+            to="/"
+            class="py-2.5 text-gray-600 hover:text-gray-900"
+            @click="menuOpen = false"
+            >{{ $t('nav.races') }}</router-link
+          >
           <router-link
             to="/groups"
             class="py-2.5 text-gray-600 hover:text-gray-900"

@@ -1,5 +1,6 @@
 export default {
   nav: {
+    races: 'Races',
     groups: 'Groups',
     myBets: 'My bets',
     leaderboard: 'Leaderboard',

@@ -1,5 +1,6 @@
 export default {
   nav: {
+    races: 'Rennen',
     groups: 'Gruppen',
     myBets: 'Meine Tipps',
     leaderboard: 'Rangliste',
