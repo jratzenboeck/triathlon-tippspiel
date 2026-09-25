@@ -66,7 +66,20 @@ export default {
   profile: {
     title: 'Profile',
     displayName: 'Display name',
-    email: 'Email'
+    email: 'Email',
+    picture: 'Profile picture',
+    pictureHint: 'JPEG, PNG or WebP, up to 5 MB.',
+    pictureUpload: 'Upload picture',
+    pictureUploading: 'Uploading...',
+    pictureUploaded: 'Profile picture uploaded.',
+    pictureRemove: 'Remove picture',
+    pictureRemoving: 'Removing...',
+    pictureRemoved: 'Profile picture removed.',
+    pictureInvalidType: 'Please choose a JPEG, PNG or WebP image.',
+    pictureTooLarge: 'Profile picture must not exceed 5 MB.',
+    pictureUploadFailed: 'Could not upload the profile picture. Please try again.',
+    pictureRemoveFailed: 'Could not remove the profile picture. Please try again.',
+    pictureAlt: 'Profile picture of {name}'
   },
   groups: {
     title: 'Groups',
