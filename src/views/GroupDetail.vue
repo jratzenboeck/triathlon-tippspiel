@@ -24,7 +24,10 @@
             <span class="font-bold text-gray-400 w-6">{{ i + 1 }}.</span>
             <span>{{ entry.display_name }}</span>
           </div>
-          <span class="font-semibold">{{ entry.total_points }} pts</span>
+          <div class="flex items-center gap-4 text-sm text-gray-500">
+            <span>{{ $t('leaderboard.betCount', entry.bets) }}</span>
+            <span class="font-semibold text-gray-900">{{ entry.total_points }} pts</span>
+          </div>
         </div>
       </section>
 
@@ -189,9 +192,11 @@ onMounted(async () => {
         grouped[b.user_id] = {
           user_id: b.user_id,
           display_name: b.profiles.display_name,
-          total_points: 0
+          total_points: 0,
+          bets: 0
         }
       grouped[b.user_id].total_points += b.points || 0
+      grouped[b.user_id].bets += 1
     }
     leaderboard.value = Object.values(grouped).sort((a, b) => b.total_points - a.total_points)
   }
