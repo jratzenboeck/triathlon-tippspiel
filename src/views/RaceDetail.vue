@@ -77,8 +77,14 @@
           v-if="!startlistMissing[activeDivision] && placed"
           class="mt-4 flex items-center gap-4 text-sm"
         >
-          <span class="text-green-600 font-medium">{{ $t('race.betSaved') }}</span>
-          <button class="text-indigo-600 font-medium hover:underline" @click="saveBet">
+          <span v-if="savedNotice" class="text-green-600 font-medium">{{
+            $t('race.betSaved')
+          }}</span>
+          <button
+            :disabled="saving"
+            class="text-indigo-600 font-medium hover:underline disabled:opacity-50"
+            @click="saveBet"
+          >
             {{ $t('race.update') }}
           </button>
         </div>
@@ -235,6 +241,7 @@ const loading = ref(true)
 const saving = ref(false)
 const saveError = ref('')
 const placed = ref(false)
+const savedNotice = ref(false)
 const race = ref(null)
 const activeDivision = ref('FPRO')
 
@@ -281,9 +288,17 @@ function onDocumentClick() {
 
 onMounted(async () => {
   document.addEventListener('click', onDocumentClick)
+  await loadRace()
+  await loadMyBets()
+  loading.value = false
+})
+
+async function loadRace() {
   const { data: r } = await supabase.from('races').select('*').eq('id', route.params.id).single()
   race.value = r
 
+  results.value = { FPRO: [], MPRO: [] }
+  hasResults.value = false
   const { data: rrs } = await supabase
     .from('race_results')
     .select('*, athletes(*)')
@@ -298,6 +313,10 @@ onMounted(async () => {
     }
   }
 
+  hasStartlist.value = false
+  startlist.value = { FPRO: [], MPRO: [] }
+  startlistAthleteIds.value = { FPRO: [], MPRO: [] }
+  startlistMissing.value = { FPRO: false, MPRO: false }
   const { data: startlistData } = await supabase
     .from('race_startlists')
     .select('athlete_id, division, bib, athletes(*)')
@@ -314,6 +333,17 @@ onMounted(async () => {
     startlist.value[div].sort((a, b) => bibNum(a) - bibNum(b))
     startlistMissing.value[div] = hasStartlist.value && startlistAthleteIds.value[div].length === 0
   }
+}
+
+async function loadMyBets() {
+  existingBets.value = { FPRO: {}, MPRO: {} }
+  selections.value = { FPRO: {}, MPRO: {} }
+  searchQueries.value = { FPRO: {}, MPRO: {} }
+  myBets.value = { FPRO: [], MPRO: [] }
+  hasBets.value = false
+  placed.value = false
+  betDivisions.value = []
+  betTotal.value = 0
 
   const { data: bets } = await supabase
     .from('bets')
@@ -321,30 +351,30 @@ onMounted(async () => {
     .eq('race_id', route.params.id)
     .eq('user_id', auth.user.id)
     .order('predicted_position')
-  if (bets?.length) {
-    const resultMap = {}
-    for (const div of Object.keys(results.value)) {
-      for (const rr of results.value[div]) {
-        resultMap[`${div}:${rr.athlete_id}`] = rr.position
-      }
-    }
-    for (const b of bets) {
-      existingBets.value[b.division][b.predicted_position] = b
-      selections.value[b.division][b.predicted_position] = b.athletes
-      searchQueries.value[b.division][b.predicted_position] = b.athletes?.full_name || ''
-      b.actual_position = resultMap[`${b.division}:${b.athlete_id}`] ?? null
-      if (!myBets.value[b.division]) myBets.value[b.division] = []
-      myBets.value[b.division].push(b)
-    }
-    placed.value = true
-    betDivisions.value = Object.keys(myBets.value)
-    betDivision.value = betDivisions.value[0]
-    betTotal.value = bets.reduce((sum, b) => sum + (b.points || 0), 0)
-    hasBets.value = true
-  }
+  if (!bets?.length) return
 
-  loading.value = false
-})
+  const resultMap = {}
+  for (const div of Object.keys(results.value)) {
+    for (const rr of results.value[div]) {
+      resultMap[`${div}:${rr.athlete_id}`] = rr.position
+    }
+  }
+  for (const b of bets) {
+    existingBets.value[b.division][b.predicted_position] = b
+    selections.value[b.division][b.predicted_position] = b.athletes
+    searchQueries.value[b.division][b.predicted_position] = b.athletes?.full_name || ''
+    b.actual_position = resultMap[`${b.division}:${b.athlete_id}`] ?? null
+    if (!myBets.value[b.division]) myBets.value[b.division] = []
+    myBets.value[b.division].push(b)
+  }
+  placed.value = true
+  betDivisions.value = Object.keys(myBets.value)
+  if (!betDivisions.value.includes(betDivision.value)) {
+    betDivision.value = betDivisions.value[0]
+  }
+  betTotal.value = bets.reduce((sum, b) => sum + (b.points || 0), 0)
+  hasBets.value = true
+}
 
 onUnmounted(() => {
   document.removeEventListener('click', onDocumentClick)
@@ -381,6 +411,7 @@ function selectAthlete(division, pos, athlete) {
 
 async function saveBet() {
   saveError.value = ''
+  savedNotice.value = false
   saving.value = true
   try {
     const { error: delErr } = await supabase
@@ -409,7 +440,8 @@ async function saveBet() {
       if (insErr) throw insErr
     }
 
-    placed.value = true
+    await loadMyBets()
+    savedNotice.value = true
   } catch (e) {
     saveError.value = e.message
   } finally {
