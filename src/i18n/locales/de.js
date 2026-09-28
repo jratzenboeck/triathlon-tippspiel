@@ -111,6 +111,23 @@ export default {
     shareOnWhatsApp: 'Via WhatsApp teilen',
     newLink: 'Neuer Link'
   },
+  groupBets: {
+    title: 'Gruppentipps',
+    backToGroup: 'Zurück zur Gruppe',
+    none: 'Noch hat kein Mitglied dieser Gruppe getippt.',
+    results: 'Ergebnisse',
+    resultsHint: 'Die Top 5. Alle Ergebnisse findest du auf der Rennseite.',
+    showResults: 'Ergebnisse anzeigen',
+    hideResults: 'Ergebnisse ausblenden',
+    whoBet: 'Wer hat getippt',
+    ranking: 'Rangliste für dieses Rennen',
+    betCount: '{count} Tipp | {count} Tipps',
+    exactCount: '{count} exakt',
+    legendExact: 'Genau richtig — 3 Pkt.',
+    legendTop5: 'In den Top 5, aber anders platziert — 1 Pkt.',
+    showBets: 'Tipps von {name} anzeigen',
+    hideBets: 'Tipps von {name} ausblenden'
+  },
   login: {
     email: 'E-Mail',
     password: 'Passwort',

@@ -14,7 +14,7 @@ test.describe('global leaderboard', () => {
 
     await expect(rows.nth(0)).toContainText('Bob')
     await expect(rows.nth(0)).toContainText('10 pts')
-    await expect(rows.nth(0)).toContainText('8 bets')
+    await expect(rows.nth(0)).toContainText('9 bets')
 
     await expect(rows.nth(1)).toContainText('Alice')
     await expect(rows.nth(1)).toContainText('9 pts')

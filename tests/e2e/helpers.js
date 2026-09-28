@@ -54,6 +54,17 @@ export async function createUser({ email, password, displayName }) {
   return res.json()
 }
 
+export async function deleteUser(userId) {
+  const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
+    method: 'DELETE',
+    headers: {
+      apikey: SUPABASE_SECRET_KEY,
+      Authorization: `Bearer ${SUPABASE_SECRET_KEY}`
+    }
+  })
+  if (!res.ok) throw new Error(`deleteUser failed with status ${res.status}`)
+}
+
 export async function getInviteToken() {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/invites?select=token`, {
     headers: {

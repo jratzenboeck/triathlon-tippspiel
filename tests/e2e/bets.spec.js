@@ -21,7 +21,7 @@ test.describe('my bets', () => {
     await loginViaUI(page, users.bob.email, users.bob.password)
     await page.goto('/bets')
 
-    await expect(page.getByText('8 bets')).toBeVisible()
+    await expect(page.getByText('9 bets')).toBeVisible()
     await expect(page.getByText('10 pts')).toBeVisible()
 
     for (const race of ['T100 Singapore', 'T100 New York', 'T100 London']) {

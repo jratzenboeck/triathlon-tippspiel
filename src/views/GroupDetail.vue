@@ -3,13 +3,16 @@
     <div v-if="loading" class="text-gray-500">Loading...</div>
     <div v-else-if="!group" class="text-gray-500">Group not found.</div>
     <div v-else>
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center justify-between mb-6 gap-4">
         <div>
           <h1 class="text-2xl font-bold">{{ group.name }}</h1>
           <p class="text-sm text-gray-500">
-            {{ members.length }} member{{ members.length !== 1 ? 's' : '' }}
+            {{ $t('groupDetail.membersCount', members.length) }}
           </p>
         </div>
+        <router-link :to="`/groups/${group.id}/bets`" class="btn btn-tab-inactive shrink-0">
+          {{ $t('groupBets.title') }}
+        </router-link>
       </div>
 
       <section class="mb-8">

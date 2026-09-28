@@ -109,6 +109,23 @@ export default {
     shareOnWhatsApp: 'Share via WhatsApp',
     newLink: 'New link'
   },
+  groupBets: {
+    title: 'Group bets',
+    backToGroup: 'Back to group',
+    none: "None of the group's members has placed a bet yet.",
+    results: 'Results',
+    resultsHint: 'Top 5 finishers. The full results are on the race page.',
+    showResults: 'Show results',
+    hideResults: 'Hide results',
+    whoBet: 'Who bet',
+    ranking: 'Ranking for this race',
+    betCount: '{count} bet | {count} bets',
+    exactCount: '{count} exact',
+    legendExact: 'Exactly right — 3 pts',
+    legendTop5: 'In the top 5, but a different place — 1 pt',
+    showBets: 'Show bets of {name}',
+    hideBets: 'Hide bets of {name}'
+  },
   login: {
     email: 'Email',
     password: 'Password',

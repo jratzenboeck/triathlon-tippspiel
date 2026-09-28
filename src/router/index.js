@@ -54,6 +54,11 @@ const routes = [
     component: () => import('../views/GroupDetail.vue')
   },
   {
+    path: '/groups/:id/bets',
+    name: 'group-bets',
+    component: () => import('../views/GroupBets.vue')
+  },
+  {
     path: '/races/:id',
     name: 'race-detail',
     component: () => import('../views/RaceDetail.vue')

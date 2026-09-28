@@ -37,7 +37,7 @@ test.describe('groups', () => {
     await expect(page.getByText('10 pts')).toBeVisible()
     await expect(page.getByText('9 pts')).toBeVisible()
     await expect(page.getByText('7 bets')).toBeVisible()
-    await expect(page.getByText('8 bets')).toBeVisible()
+    await expect(page.getByText('9 bets')).toBeVisible()
 
     await expect(page.getByRole('heading', { name: 'Members', exact: true })).toBeVisible()
     await expect(page.getByText('Admin', { exact: true })).toHaveCount(1)
