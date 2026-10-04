@@ -42,35 +42,56 @@
           </button>
         </div>
 
+        <p class="sr-only" role="status">{{ announcement }}</p>
         <div v-if="!startlistMissing[activeDivision]" class="space-y-3">
           <div v-for="pos in 5" :key="pos" class="flex items-center gap-3">
             <span class="font-bold text-gray-500 w-8">{{ pos }}.</span>
-            <div class="relative flex-1">
+            <div class="relative flex-1" @focusout="onSlotFocusOut($event, activeDivision, pos)">
               <input
+                :id="inputId(activeDivision, pos)"
                 v-model="searchQueries[activeDivision][pos]"
                 type="text"
+                role="combobox"
+                aria-autocomplete="list"
+                :aria-label="$t('race.slotLabel', { position: pos })"
+                :aria-expanded="isOpen(activeDivision, pos)"
+                :aria-controls="
+                  isOpen(activeDivision, pos) ? listboxId(activeDivision, pos) : undefined
+                "
+                :aria-activedescendant="activeDescendant(activeDivision, pos)"
                 :placeholder="$t('race.searchPlaceholder')"
                 class="input !mt-0"
                 @input="searchAthletes(activeDivision, pos)"
+                @keydown="onSlotKeydown($event, activeDivision, pos)"
               />
               <div
-                v-if="searchResults[activeDivision][pos]?.length"
+                v-if="isOpen(activeDivision, pos)"
+                :id="listboxId(activeDivision, pos)"
+                role="listbox"
                 class="absolute left-0 top-full mt-1.5 z-10 w-full rounded-lg border border-gray-200 bg-white shadow-xl overflow-y-auto max-h-72"
                 @click.stop
+                @mousedown.prevent
               >
-                <button
-                  v-for="a in searchResults[activeDivision][pos]"
+                <div
+                  v-for="(a, i) in searchResults[activeDivision][pos]"
+                  :id="optionId(activeDivision, pos, a)"
                   :key="a.id"
-                  class="flex w-full items-center gap-2.5 px-3.5 py-2.5 text-left text-sm hover:bg-indigo-50 border-b border-gray-100 last:border-0"
+                  role="option"
+                  :aria-selected="i === activeIndex(activeDivision, pos)"
+                  :class="[
+                    'flex w-full cursor-pointer items-center gap-2.5 px-3.5 py-2.5 text-left text-sm border-b border-gray-100 last:border-0',
+                    i === activeIndex(activeDivision, pos) ? 'bg-indigo-50' : 'hover:bg-indigo-50'
+                  ]"
                   @click="selectAthlete(activeDivision, pos, a)"
                 >
                   <span class="text-base leading-none">{{ flag(a.country) }}</span>
                   <span class="flex-1 truncate">{{ a.full_name }}</span>
                   <span class="text-gray-400 text-xs">{{ a.country }}</span>
-                </button>
+                </div>
               </div>
             </div>
           </div>
+          <p class="text-xs text-gray-500">{{ $t('race.keyboardHint') }}</p>
         </div>
 
         <div
@@ -227,7 +248,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { supabase } from '../lib/supabase'
@@ -236,7 +257,7 @@ import { flag } from '../lib/flags'
 
 const route = useRoute()
 const auth = useAuthStore()
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const loading = ref(true)
 const saving = ref(false)
 const saveError = ref('')
@@ -247,6 +268,8 @@ const activeDivision = ref('FPRO')
 
 const searchQueries = ref({ FPRO: {}, MPRO: {} })
 const searchResults = ref({ FPRO: {}, MPRO: {} })
+const activeIndexes = ref({ FPRO: {}, MPRO: {} })
+const announcement = ref('')
 const selections = ref({ FPRO: {}, MPRO: {} })
 const existingBets = ref({ FPRO: {}, MPRO: {} })
 const results = ref({ FPRO: [], MPRO: [] })
@@ -274,12 +297,93 @@ const isLocked = computed(() => {
   return new Date() > lockDate.value
 })
 
+function inputId(division, pos) {
+  return `slot-${division}-${pos}-input`
+}
+
+function listboxId(division, pos) {
+  return `slot-${division}-${pos}-listbox`
+}
+
+function optionId(division, pos, athlete) {
+  return `slot-${division}-${pos}-option-${athlete.id}`
+}
+
+function resultsFor(division, pos) {
+  return searchResults.value[division][pos] || []
+}
+
+function activeIndex(division, pos) {
+  return activeIndexes.value[division][pos] ?? -1
+}
+
+function isOpen(division, pos) {
+  return resultsFor(division, pos).length > 0
+}
+
+function activeDescendant(division, pos) {
+  const athlete = resultsFor(division, pos)[activeIndex(division, pos)]
+  return athlete ? optionId(division, pos, athlete) : undefined
+}
+
+function openDropdown(division, pos, list) {
+  searchResults.value[division][pos] = list
+  activeIndexes.value[division][pos] = list.length > 0 ? 0 : -1
+}
+
+function closeDropdown(division, pos) {
+  searchResults.value[division][pos] = []
+  activeIndexes.value[division][pos] = -1
+}
+
 function closeAllDropdowns() {
   for (const div of ['FPRO', 'MPRO']) {
     for (let pos = 1; pos <= 5; pos++) {
-      searchResults.value[div][pos] = []
+      closeDropdown(div, pos)
     }
   }
+}
+
+function scrollActiveOptionIntoView(division, pos) {
+  const id = activeDescendant(division, pos)
+  if (!id) return
+  nextTick(() => document.getElementById(id)?.scrollIntoView({ block: 'nearest' }))
+}
+
+function onSlotFocusOut(event, division, pos) {
+  if (event.currentTarget.contains(event.relatedTarget)) return
+  closeDropdown(division, pos)
+}
+
+function onSlotKeydown(event, division, pos) {
+  const list = resultsFor(division, pos)
+  const step = event.key === 'ArrowDown' ? 1 : event.key === 'ArrowUp' ? -1 : 0
+
+  if (step !== 0) {
+    if (list.length === 0) return
+    event.preventDefault()
+    const current = activeIndex(division, pos)
+    activeIndexes.value[division][pos] =
+      current < 0 ? (step > 0 ? 0 : list.length - 1) : (current + step + list.length) % list.length
+    scrollActiveOptionIntoView(division, pos)
+    return
+  }
+
+  if (event.key === 'Enter') {
+    const athlete = list[activeIndex(division, pos)]
+    if (!athlete) return
+    event.preventDefault()
+    selectAthlete(division, pos, athlete)
+    return
+  }
+
+  if (event.key === 'Escape') {
+    if (isOpen(division, pos)) closeDropdown(division, pos)
+    else clearSlot(division, pos)
+    return
+  }
+
+  if (event.key === 'Tab') closeDropdown(division, pos)
 }
 
 function onDocumentClick() {
@@ -339,6 +443,8 @@ async function loadMyBets() {
   existingBets.value = { FPRO: {}, MPRO: {} }
   selections.value = { FPRO: {}, MPRO: {} }
   searchQueries.value = { FPRO: {}, MPRO: {} }
+  activeIndexes.value = { FPRO: {}, MPRO: {} }
+  announcement.value = ''
   myBets.value = { FPRO: [], MPRO: [] }
   hasBets.value = false
   placed.value = false
@@ -381,13 +487,10 @@ onUnmounted(() => {
 })
 
 async function searchAthletes(division, pos) {
-  if (startlistMissing.value[division]) {
-    searchResults.value[division][pos] = []
-    return
-  }
   const q = searchQueries.value[division][pos]
-  if (!q || q.length < 2) {
-    searchResults.value[division][pos] = []
+  if (startlistMissing.value[division] || !q || q.length < 2) {
+    closeDropdown(division, pos)
+    announcement.value = ''
     return
   }
   const ids = startlistAthleteIds.value[division]
@@ -400,13 +503,26 @@ async function searchAthletes(division, pos) {
     query = query.in('id', ids)
   }
   const { data } = await query.limit(10)
-  searchResults.value[division][pos] = data || []
+  const list = data || []
+  openDropdown(division, pos, list)
+  announcement.value = list.length
+    ? t('race.resultCount', { count: list.length })
+    : t('race.noResults')
 }
 
 function selectAthlete(division, pos, athlete) {
   selections.value[division][pos] = athlete
   searchQueries.value[division][pos] = athlete.full_name
-  searchResults.value[division][pos] = []
+  closeDropdown(division, pos)
+  announcement.value = t('race.picked', { athlete: athlete.full_name, position: pos })
+}
+
+function clearSlot(division, pos) {
+  const hadSelection = Boolean(selections.value[division][pos])
+  selections.value[division][pos] = undefined
+  searchQueries.value[division][pos] = ''
+  closeDropdown(division, pos)
+  if (hadSelection) announcement.value = t('race.pickCleared', { position: pos })
 }
 
 async function saveBet() {

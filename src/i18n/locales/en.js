@@ -48,6 +48,13 @@ export default {
     bettingClosed: 'Betting is closed',
     bettingOpenUntil: 'Betting open until {date}',
     searchPlaceholder: 'Search athlete...',
+    slotLabel: 'Athlete for position {position}',
+    resultCount: '{count} result | {count} results',
+    noResults: 'No matching athlete on the start list.',
+    picked: 'Picked {athlete} for position {position}.',
+    pickCleared: 'Cleared the pick for position {position}.',
+    keyboardHint:
+      'Keyboard: up/down to choose an athlete, Enter to confirm, Esc to dismiss, Tab for the next position.',
     betSaved: 'Bet saved',
     update: 'Update',
     saving: 'Saving...',

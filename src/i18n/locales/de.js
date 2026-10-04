@@ -48,6 +48,13 @@ export default {
     bettingClosed: 'Tippen ist geschlossen',
     bettingOpenUntil: 'Tippen möglich bis {date}',
     searchPlaceholder: 'Athlet:in suchen...',
+    slotLabel: 'Athlet:in für Platz {position}',
+    resultCount: '{count} Treffer',
+    noResults: 'Keine passende Athlet:in auf der Startliste.',
+    picked: '{athlete} für Platz {position} gewählt.',
+    pickCleared: 'Wahl für Platz {position} gelöscht.',
+    keyboardHint:
+      'Tastatur: Pfeil hoch/runter zum Auswählen, Enter zum Bestätigen, Esc zum Schließen, Tab zur nächsten Position.',
     betSaved: 'Tipp gespeichert',
     update: 'Aktualisieren',
     saving: 'Wird gespeichert...',

@@ -45,7 +45,7 @@ test.describe('race detail', () => {
     // Search and pick an athlete for the women's division.
     await page.getByRole('button', { name: 'Women', exact: true }).first().click()
     await page.fill('input[placeholder="Search athlete..."]', 'Anna')
-    await page.getByRole('button', { name: /Anna Schmidt/ }).click()
+    await page.getByRole('option', { name: /Anna Schmidt/ }).click()
     await page.getByRole('button', { name: 'Place bet' }).click()
 
     await expect(page.getByText('Bet saved')).toBeVisible()
@@ -72,19 +72,81 @@ test.describe('race detail', () => {
 
     await page.getByRole('button', { name: 'Women', exact: true }).first().click()
     await page.fill('input[placeholder="Search athlete..."]', 'Anna')
-    await page.getByRole('button', { name: /Anna Schmidt/ }).click()
+    await page.getByRole('option', { name: /Anna Schmidt/ }).click()
     await page.getByRole('button', { name: 'Place bet' }).click()
     await expect(page.getByText('Bet saved')).toBeVisible()
 
     // Swap the first pick for someone else and update.
     await page.fill('input[placeholder="Search athlete..."]', 'Mia')
-    await page.getByRole('button', { name: /Mia Johansson/ }).click()
+    await page.getByRole('option', { name: /Mia Johansson/ }).click()
     await page.getByRole('button', { name: 'Update' }).click()
 
     const yourBets = page.getByRole('heading', { name: 'Your bets' })
     const betsSection = page.locator('section', { has: yourBets })
     await expect(betsSection.getByText('Mia Johansson')).toBeVisible()
     await expect(betsSection.getByText('Anna Schmidt')).toHaveCount(0)
+  })
+
+  test('athletes can be picked with the keyboard alone', async ({ page }) => {
+    const email = `keyboard-${Date.now()}@example.com`
+    await createUser({ email, password: 'password123', displayName: 'Keyboard' })
+    await loginViaUI(page, email, 'password123')
+    await page.goto(`/races/${SINGAPORE_ID}`)
+
+    await page.getByRole('button', { name: 'Women', exact: true }).first().click()
+
+    const slot1 = page.getByRole('combobox', { name: 'Athlete for position 1' })
+    const slot2 = page.getByRole('combobox', { name: 'Athlete for position 2' })
+
+    // Tab from the division tabs into the first slot, then type to search.
+    await page.getByRole('button', { name: 'Men', exact: true }).first().focus()
+    await page.keyboard.press('Tab')
+    await expect(slot1).toBeFocused()
+
+    await slot1.type('Anna')
+    await expect(slot1).toHaveAttribute('aria-expanded', 'true')
+    await expect(page.getByRole('option', { name: /Anna Schmidt/ })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    )
+
+    // Arrow keys move the highlight and wrap around.
+    await page.keyboard.press('ArrowDown')
+    await page.keyboard.press('ArrowUp')
+    await expect(page.getByRole('option', { name: /Anna Schmidt/ })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    )
+
+    // Escape dismisses the list, a second Escape clears the field.
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('option', { name: /Anna Schmidt/ })).toHaveCount(0)
+    await page.keyboard.press('Escape')
+    await expect(slot1).toHaveValue('')
+
+    // Enter confirms the highlighted option and fills the input.
+    await slot1.type('Anna')
+    await expect(page.getByRole('option', { name: /Anna Schmidt/ })).toBeVisible()
+    await page.keyboard.press('Enter')
+    await expect(slot1).toHaveValue('Anna Schmidt')
+    await expect(page.getByRole('option', { name: /Anna Schmidt/ })).toHaveCount(0)
+    // Focus stays on the input so the next pick is a single Tab away.
+    await expect(slot1).toBeFocused()
+
+    await page.keyboard.press('Tab')
+    await expect(slot2).toBeFocused()
+    await slot2.type('Mia')
+    await expect(page.getByRole('option', { name: /Mia Johansson/ })).toBeVisible()
+    await page.keyboard.press('Enter')
+    await expect(slot2).toHaveValue('Mia Johansson')
+
+    await page.getByRole('button', { name: 'Place bet' }).click()
+    await expect(page.getByText('Bet saved')).toBeVisible()
+
+    const yourBets = page.getByRole('heading', { name: 'Your bets' })
+    const betsSection = page.locator('section', { has: yourBets })
+    await expect(betsSection.getByText('Anna Schmidt')).toBeVisible()
+    await expect(betsSection.getByText('Mia Johansson')).toBeVisible()
   })
 
   test('shows an invalid race as not found', async ({ page }) => {
