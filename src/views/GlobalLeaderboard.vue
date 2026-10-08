@@ -16,6 +16,7 @@
       >
         <div class="flex items-center gap-3 min-w-0">
           <span class="font-bold text-gray-400 w-8">{{ i + 1 }}.</span>
+          <UserAvatar :name="entry.display_name" :avatar-path="entry.avatar_path" />
           <span class="truncate">{{ entry.display_name }}</span>
         </div>
         <div class="flex items-center gap-4 text-sm text-gray-500">
@@ -33,6 +34,7 @@
 import { ref, onMounted } from 'vue'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/auth'
+import UserAvatar from '../components/UserAvatar.vue'
 
 const auth = useAuthStore()
 const loading = ref(true)
@@ -41,7 +43,7 @@ const entries = ref([])
 onMounted(async () => {
   const { data } = await supabase
     .from('bets')
-    .select('user_id, points, profiles!inner(display_name)')
+    .select('user_id, points, profiles!inner(display_name, avatar_path)')
 
   const scores = {}
   for (const b of data || []) {
@@ -49,6 +51,7 @@ onMounted(async () => {
       scores[b.user_id] = {
         user_id: b.user_id,
         display_name: b.profiles.display_name,
+        avatar_path: b.profiles.avatar_path,
         points: 0,
         bets: 0
       }

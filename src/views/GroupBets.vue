@@ -126,6 +126,7 @@
               @click="toggleMember(c.race.id, m.user_id)"
             >
               <span v-if="c.div.scored" class="font-bold text-gray-400 w-6">{{ i + 1 }}.</span>
+              <UserAvatar :name="m.display_name" :avatar-path="m.avatar_path" />
               <span class="flex-1 truncate">{{ m.display_name }}</span>
               <span v-if="c.div.scored" class="text-xs text-gray-500 shrink-0">
                 {{ $t('groupBets.exactCount', m.exactPicks) }}
@@ -187,6 +188,7 @@ import { supabase } from '../lib/supabase'
 import { flag } from '../lib/flags'
 import { betPoints } from '../lib/scoring'
 import ChevronIcon from '../components/ChevronIcon.vue'
+import UserAvatar from '../components/UserAvatar.vue'
 
 const route = useRoute()
 const { locale } = useI18n()
@@ -220,21 +222,21 @@ onMounted(async () => {
   if (g) {
     const { data: memberRows } = await supabase
       .from('group_members')
-      .select('user_id, profiles!inner(display_name)')
+      .select('user_id, profiles!inner(display_name, avatar_path)')
       .eq('group_id', g.id)
 
-    const displayNames = new Map()
+    const profilesById = new Map()
     for (const m of memberRows || []) {
-      if (m.profiles?.display_name) displayNames.set(m.user_id, m.profiles.display_name)
+      if (m.profiles?.display_name) profilesById.set(m.user_id, m.profiles)
     }
 
-    if (displayNames.size) {
+    if (profilesById.size) {
       const { data: bets } = await supabase
         .from('bets')
         .select(
           'id, user_id, race_id, division, athlete_id, predicted_position, races(*), athletes(*)'
         )
-        .in('user_id', [...displayNames.keys()])
+        .in('user_id', [...profilesById.keys()])
 
       if (bets?.length) {
         const raceIds = [...new Set(bets.map((b) => b.race_id))]
@@ -245,7 +247,7 @@ onMounted(async () => {
           .not('position', 'is', null)
           .order('position')
 
-        raceGroups.value = buildRaceGroups(bets, results || [], displayNames)
+        raceGroups.value = buildRaceGroups(bets, results || [], profilesById)
         divisions.value = ['FPRO', 'MPRO'].filter((div) =>
           raceGroups.value.some((r) => r.divisions[div])
         )
@@ -259,7 +261,7 @@ onMounted(async () => {
   loading.value = false
 })
 
-function buildRaceGroups(bets, results, displayNames) {
+function buildRaceGroups(bets, results, profilesById) {
   const positions = new Map()
   const topFive = new Map()
   const resultsByDivision = new Map()
@@ -293,9 +295,11 @@ function buildRaceGroups(bets, results, displayNames) {
 
         const membersOfDivision = membersByDivision[b.division]
         if (!membersOfDivision.has(b.user_id)) {
+          const profile = profilesById.get(b.user_id)
           membersOfDivision.set(b.user_id, {
             user_id: b.user_id,
-            display_name: displayNames.get(b.user_id),
+            display_name: profile?.display_name,
+            avatar_path: profile?.avatar_path,
             betCount: 0,
             points: 0,
             exactPicks: 0,

@@ -25,6 +25,7 @@
         >
           <div class="flex items-center gap-3">
             <span class="font-bold text-gray-400 w-6">{{ i + 1 }}.</span>
+            <UserAvatar :name="entry.display_name" :avatar-path="entry.avatar_path" />
             <span>{{ entry.display_name }}</span>
           </div>
           <div class="flex items-center gap-4 text-sm text-gray-500">
@@ -43,6 +44,7 @@
           class="bg-white rounded-lg shadow-sm border p-3 mb-2 flex items-center justify-between"
         >
           <div class="flex items-center gap-2">
+            <UserAvatar :name="m.display_name" :avatar-path="m.avatar_path" />
             <span>{{ m.display_name }}</span>
             <span
               v-if="m.is_admin"
@@ -136,6 +138,7 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/auth'
+import UserAvatar from '../components/UserAvatar.vue'
 
 const route = useRoute()
 const auth = useAuthStore()
@@ -176,14 +179,19 @@ onMounted(async () => {
     .select('user_id, is_admin, profiles(*)')
     .eq('group_id', route.params.id)
   members.value = (ms || [])
-    .map((m) => ({ id: m.user_id, display_name: m.profiles?.display_name, is_admin: m.is_admin }))
+    .map((m) => ({
+      id: m.user_id,
+      display_name: m.profiles?.display_name,
+      avatar_path: m.profiles?.avatar_path,
+      is_admin: m.is_admin
+    }))
     .filter((m) => m.display_name)
 
   isAdmin.value = !!members.value.find((m) => m.id === auth.user.id)?.is_admin
 
   const { data: bs } = await supabase
     .from('bets')
-    .select('user_id, points, profiles!inner(display_name)')
+    .select('user_id, points, profiles!inner(display_name, avatar_path)')
     .in(
       'user_id',
       members.value.map((m) => m.id)
@@ -195,6 +203,7 @@ onMounted(async () => {
         grouped[b.user_id] = {
           user_id: b.user_id,
           display_name: b.profiles.display_name,
+          avatar_path: b.profiles.avatar_path,
           total_points: 0,
           bets: 0
         }
