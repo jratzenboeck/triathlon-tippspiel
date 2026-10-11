@@ -15,12 +15,12 @@
       <div v-else>
         <div class="flex gap-2 mb-4">
           <button
-            v-for="div in divisions"
+            v-for="div in tabs"
             :key="div"
             :class="['btn-tab', activeDivision === div ? 'btn-tab-active' : 'btn-tab-inactive']"
             @click="activeDivision = div"
           >
-            {{ div === 'FPRO' ? $t('common.women') : $t('common.men') }}
+            {{ divisionLabel(div) }}
           </button>
         </div>
 
@@ -191,7 +191,7 @@ import ChevronIcon from '../components/ChevronIcon.vue'
 import UserAvatar from '../components/UserAvatar.vue'
 
 const route = useRoute()
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 
 const loading = ref(true)
 const group = ref(null)
@@ -200,6 +200,14 @@ const divisions = ref([])
 const activeDivision = ref('FPRO')
 const expandedMembers = ref(new Set())
 const collapsedResults = ref(new Set())
+
+const tabs = computed(() => [...divisions.value, 'TOTAL'])
+
+function divisionLabel(div) {
+  if (div === 'FPRO') return t('common.women')
+  if (div === 'MPRO') return t('common.men')
+  return t('common.total')
+}
 
 const cards = computed(() =>
   raceGroups.value
@@ -322,6 +330,36 @@ function buildRaceGroups(bets, results, profilesById) {
           results: divisionResults.slice(0, 5),
           scored,
           members: sortMembers([...membersByDivision[div].values()], scored)
+        }
+      }
+
+      const totalMembers = new Map()
+      for (const div of ['FPRO', 'MPRO']) {
+        for (const m of divisionData[div]?.members ?? []) {
+          if (!totalMembers.has(m.user_id)) {
+            totalMembers.set(m.user_id, {
+              user_id: m.user_id,
+              display_name: m.display_name,
+              avatar_path: m.avatar_path,
+              betCount: 0,
+              points: 0,
+              exactPicks: 0,
+              bets: []
+            })
+          }
+          const total = totalMembers.get(m.user_id)
+          total.betCount += m.betCount
+          total.points += m.points
+          total.exactPicks += m.exactPicks
+          total.bets.push(...m.bets)
+        }
+      }
+      if (totalMembers.size) {
+        const scored = (divisionData.FPRO?.scored ?? false) || (divisionData.MPRO?.scored ?? false)
+        divisionData.TOTAL = {
+          results: [],
+          scored,
+          members: sortMembers([...totalMembers.values()], scored)
         }
       }
 
