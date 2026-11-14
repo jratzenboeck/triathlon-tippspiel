@@ -8,7 +8,8 @@ export default {
     signOut: 'Abmelden',
     openMenu: 'Menü öffnen',
     closeMenu: 'Menü schließen',
-    language: 'Sprache'
+    language: 'Sprache',
+    admin: 'Admin'
   },
   common: {
     loading: 'Wird geladen...',
@@ -197,5 +198,50 @@ export default {
     description: 'Punkte über alle Rennen und Gruppen hinweg.',
     noBets: 'Noch keine Tipps abgegeben.',
     betCount: '{count} Tipp | {count} Tipps'
+  },
+  admin: {
+    title: 'Admin',
+    intro: 'Rennergebnisse, Startlisten und Tipps der Spieler von Hand korrigieren.',
+    searchRaces: 'Rennen nach Name oder Datum suchen',
+    noRaces: 'Keine Rennen gefunden.',
+    hasResults: 'Ergebnisse',
+    startlistEdited: 'Startliste bearbeitet',
+    backToRaces: 'Alle Rennen',
+    viewRace: 'Zur Rennseite',
+    results: 'Ergebnisse',
+    startlist: 'Startliste',
+    bets: 'Tipps',
+    status: 'Status',
+    statusFinished: 'Im Ziel',
+    pickAthlete: 'Athlet:in wählen',
+    positionOfRow: 'Platz, Zeile {row}',
+    athleteOfRow: 'Athlet:in, Zeile {row}',
+    timeOfRow: 'Zielzeit, Zeile {row}',
+    statusOfRow: 'Status, Zeile {row}',
+    bibOfRow: 'Startnummer, Zeile {row}',
+    removeRow: 'Zeile {row} entfernen',
+    resultsHint:
+      'Speichern ersetzt die Ergebnisse dieser Kategorie und berechnet die Punkte aller Tipps auf dieses Rennen neu.',
+    noResults: 'Keine Ergebnisse für diese Kategorie.',
+    addResult: 'Ergebnis hinzufügen',
+    startlistHint:
+      'Speichern ersetzt die Startliste dieser Kategorie. Der tägliche Crawler lässt dieses Rennen danach in Ruhe.',
+    startlistLocked:
+      'Diese Startliste wurde von Hand bearbeitet, der tägliche Crawler überschreibt sie daher nicht.',
+    startlistRelease: 'Crawler wieder aktualisieren lassen',
+    noStartlist: 'Keine Startliste für diese Kategorie.',
+    addStarter: 'Athlet:in hinzufügen',
+    betsHint:
+      'Speichern ersetzt die Tipps des Spielers für diese Kategorie. Die Punkte werden aus den aktuellen Ergebnissen berechnet.',
+    noBets: 'Noch niemand hat auf diese Kategorie getippt.',
+    pickOfPlayer: '{player}, Platz {position}',
+    savePicks: 'Tipps von {player} speichern',
+    addPlayer: 'Spieler wählen',
+    addPicks: 'Tipps hinzufügen',
+    save: 'Speichern',
+    saved: 'Gespeichert',
+    errorMissingAthlete: 'Jede Zeile braucht eine:n Athlet:in.',
+    errorDuplicateAthlete: 'Jede:r Athlet:in darf nur einmal vorkommen.',
+    errorPosition: 'Plätze müssen ganze Zahlen ab 1 sein.'
   }
 }

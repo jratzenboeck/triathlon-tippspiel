@@ -72,6 +72,18 @@ const routes = [
     path: '/profile',
     name: 'profile',
     component: () => import('../views/Profile.vue')
+  },
+  {
+    path: '/admin',
+    name: 'admin',
+    component: () => import('../views/admin/AdminRaces.vue'),
+    meta: { superadmin: true }
+  },
+  {
+    path: '/admin/races/:id',
+    name: 'admin-race',
+    component: () => import('../views/admin/AdminRace.vue'),
+    meta: { superadmin: true }
   }
 ]
 
@@ -91,6 +103,12 @@ router.beforeEach(async (to) => {
   const pendingToken = getInviteToken()
   if (user && pendingToken && to.name !== 'invite') {
     return { path: `/invite/${pendingToken}` }
+  }
+  // Only keeps the pages out of sight; the database policies are what actually
+  // stop anyone else from writing.
+  if (to.meta.superadmin) {
+    const { data: isSuperadmin } = await supabase.rpc('is_superadmin')
+    if (isSuperadmin !== true) return { name: 'dashboard' }
   }
 })
 

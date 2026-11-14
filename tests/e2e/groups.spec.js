@@ -40,7 +40,8 @@ test.describe('groups', () => {
     await expect(page.getByText('9 bets')).toBeVisible()
 
     await expect(page.getByRole('heading', { name: 'Members', exact: true })).toBeVisible()
-    await expect(page.getByText('Admin', { exact: true })).toHaveCount(1)
+    // Scoped to the page: Alice is also a super admin, so the nav has an "Admin" link too.
+    await expect(page.getByRole('main').getByText('Admin', { exact: true })).toHaveCount(1)
   })
 
   test('hides admin controls from regular members', async ({ page }) => {

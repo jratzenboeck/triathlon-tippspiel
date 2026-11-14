@@ -6,6 +6,7 @@ import { i18n } from '../i18n'
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
   const profile = ref(null)
+  const isSuperadmin = ref(false)
   const loading = ref(true)
 
   async function fetchUser() {
@@ -14,8 +15,14 @@ export const useAuthStore = defineStore('auth', () => {
     } = await supabase.auth.getUser()
     user.value = u
     if (u) {
-      const { data } = await supabase.from('profiles').select('*').eq('id', u.id).single()
+      const [{ data }, { data: superadmin }] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', u.id).single(),
+        supabase.rpc('is_superadmin')
+      ])
       profile.value = data
+      isSuperadmin.value = superadmin === true
+    } else {
+      isSuperadmin.value = false
     }
     loading.value = false
   }
@@ -55,11 +62,13 @@ export const useAuthStore = defineStore('auth', () => {
     await supabase.auth.signOut()
     user.value = null
     profile.value = null
+    isSuperadmin.value = false
   }
 
   return {
     user,
     profile,
+    isSuperadmin,
     loading,
     fetchUser,
     signIn,

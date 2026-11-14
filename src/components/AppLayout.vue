@@ -24,6 +24,12 @@
             <router-link to="/profile" class="text-gray-600 hover:text-gray-900">{{
               $t('nav.profile')
             }}</router-link>
+            <router-link
+              v-if="auth.isSuperadmin"
+              to="/admin"
+              class="text-amber-700 hover:text-amber-900 font-medium"
+              >{{ $t('nav.admin') }}</router-link
+            >
             <button class="text-gray-400 hover:text-gray-600" @click="handleSignOut">
               {{ $t('nav.signOut') }}
             </button>
@@ -94,6 +100,13 @@
             class="py-2.5 text-gray-600 hover:text-gray-900"
             @click="menuOpen = false"
             >{{ $t('nav.profile') }}</router-link
+          >
+          <router-link
+            v-if="auth.isSuperadmin"
+            to="/admin"
+            class="py-2.5 text-amber-700 hover:text-amber-900 font-medium"
+            @click="menuOpen = false"
+            >{{ $t('nav.admin') }}</router-link
           >
           <button class="py-2.5 text-left text-gray-400 hover:text-gray-600" @click="handleSignOut">
             {{ $t('nav.signOut') }}

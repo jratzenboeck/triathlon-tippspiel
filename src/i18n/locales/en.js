@@ -8,7 +8,8 @@ export default {
     signOut: 'Sign out',
     openMenu: 'Open menu',
     closeMenu: 'Close menu',
-    language: 'Language'
+    language: 'Language',
+    admin: 'Admin'
   },
   common: {
     loading: 'Loading...',
@@ -194,5 +195,50 @@ export default {
     description: 'Points earned across all races and groups.',
     noBets: 'No bets placed yet.',
     betCount: '{count} bet | {count} bets'
+  },
+  admin: {
+    title: 'Admin',
+    intro: "Correct race results, start lists and players' bets by hand.",
+    searchRaces: 'Search races by name or date',
+    noRaces: 'No races found.',
+    hasResults: 'Results',
+    startlistEdited: 'Start list edited',
+    backToRaces: 'All races',
+    viewRace: 'View race page',
+    results: 'Results',
+    startlist: 'Start list',
+    bets: 'Bets',
+    status: 'Status',
+    statusFinished: 'Finished',
+    pickAthlete: 'Pick an athlete',
+    positionOfRow: 'Position, row {row}',
+    athleteOfRow: 'Athlete, row {row}',
+    timeOfRow: 'Finish time, row {row}',
+    statusOfRow: 'Status, row {row}',
+    bibOfRow: 'Bib, row {row}',
+    removeRow: 'Remove row {row}',
+    resultsHint:
+      "Saving replaces this division's results and recalculates the points of every bet on this race.",
+    noResults: 'No results for this division.',
+    addResult: 'Add result',
+    startlistHint:
+      "Saving replaces this division's start list. The daily crawler then leaves this race alone.",
+    startlistLocked:
+      'This start list was edited by hand, so the daily crawler will not overwrite it.',
+    startlistRelease: 'Let the crawler update it again',
+    noStartlist: 'No start list for this division.',
+    addStarter: 'Add athlete',
+    betsHint:
+      "Saving replaces the player's picks for this division. Points are calculated from the current results.",
+    noBets: 'Nobody has bet on this division yet.',
+    pickOfPlayer: '{player}, position {position}',
+    savePicks: 'Save picks of {player}',
+    addPlayer: 'Choose a player',
+    addPicks: 'Add picks',
+    save: 'Save',
+    saved: 'Saved',
+    errorMissingAthlete: 'Every row needs an athlete.',
+    errorDuplicateAthlete: 'An athlete can only appear once.',
+    errorPosition: 'Positions must be whole numbers from 1 up.'
   }
 }

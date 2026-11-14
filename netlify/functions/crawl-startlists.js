@@ -507,7 +507,18 @@ async function crawlHandler() {
       recordsByRace.get(race.id).records.push(...records)
     }
 
+    // A start list a super admin edited by hand wins over the crawled one.
+    const { data: editedRaces } = await supabase
+      .from('races')
+      .select('id')
+      .not('startlist_edited_at', 'is', null)
+    const editedRaceIds = new Set((editedRaces || []).map((r) => r.id))
+
     for (const { race, records } of recordsByRace.values()) {
+      if (editedRaceIds.has(race.id)) {
+        log.push(`${race.name}: start list edited by hand, skipping`)
+        continue
+      }
       await supabase.from('race_startlists').delete().eq('race_id', race.id)
       if (records.length) {
         await supabase.from('race_startlists').insert(records)

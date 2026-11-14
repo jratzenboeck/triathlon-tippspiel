@@ -5,7 +5,7 @@
 -- everything is truncated and re-inserted.
 --
 -- Two login users exist (password for both: password123):
---   alice@example.com  (display name "Alice" – creator/admin of Test Group)
+--   alice@example.com  (display name "Alice" – creator/admin of Test Group, superadmin)
 --   bob@example.com    (display name "Bob" – member of Test Group)
 --
 -- Race dates are relative to the current date so the dashboard always shows
@@ -178,6 +178,10 @@ insert into public.group_members (group_id, user_id, is_admin)
 values
   ('20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', true),
   ('20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000002', false);
+
+-- Alice can open the admin pages; Bob cannot
+insert into public.superadmins (user_id)
+values ('10000000-0000-0000-0000-000000000001');
 
 insert into public.invites (group_id, invited_by, email)
 values ('20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'carol@example.com');
